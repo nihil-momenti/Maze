@@ -1,6 +1,6 @@
 from __future__ import division
-import random
-import numpy
+
+import random, numpy
 from collections import deque
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -28,32 +28,26 @@ class Point(object):
 # 1 - Wall
 # 2 - Floor
 class Maze(object):
-  def __init__(self, width, height, scale, yscale, num_runners, dead_end_chance):
-    self.width = width
-    self.height = height
-    self.scale = scale
-    self.yscale = yscale
-    self.num_runners = num_runners
-    self.dead_end_chance = dead_end_chance
-    self.map = numpy.zeros((width,height),numpy.int8)
-    self.startPoint = Point(random.randint(0, width - 1), random.randint(0, height - 1))
-    self.generate_maze()
-    self.generate_list()
+  def __init__(self, config, heightmap): size, scale, heightmap, yscale, num_runners, dead_end_chance):
+    self.size, self.scale, y_scale = config['size'], config['scale'], config['y_scale']
+    num_runners, dead_end_chance = config['num_runners'], config['dead_end_chance']
+    self.map = numpy.zeros((size,size),numpy.int8)
+    self.startPoint = Point(random.randint(0, size - 1), random.randint(0, size - 1))
+    self.generate_maze(num_runners, dead_end_chance)
+    self.generate_list(y_scale)
 
-  def generate_maze(self):
+  def generate_maze(self, num_runners, dead_end_chance):
     self.map[self.startPoint.t()] = 2
     runners = deque([self.startPoint])
     while (len(runners) > 0):
       current = runners.popleft()
       next = self.choose_direction(current)
-      num = 0
-      while len(runners) < self.num_runners and next is not None:
-        if random.random() < self.dead_end_chance:
+      while len(runners) < num_runners and next is not None:
+        if random.random() < dead_end_chance:
           self.map[next.t()] = 1
         else:
           self.map[next.t()] = 2
           runners.append(next)
-        num += 1
         next = self.choose_direction(current)
       for point in self.neighbours(current):
         self.map[point.t()] = 1

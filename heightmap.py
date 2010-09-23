@@ -1,4 +1,5 @@
 from __future__ import division
+
 import numpy, random, math
 
 def powerOf2(size):

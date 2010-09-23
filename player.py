@@ -1,3 +1,5 @@
+from __future__ import division
+
 class Player(object):
   def __init__(self, x, z):
     self.position = (x, 0, z)

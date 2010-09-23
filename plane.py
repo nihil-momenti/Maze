@@ -1,4 +1,5 @@
 from __future__ import division
+
 import random, math
 from heightmap import generate_heightmap
 from OpenGL.GL import *
