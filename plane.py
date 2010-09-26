@@ -19,18 +19,14 @@ def normal(center_point, clockwise, widdershins):
 
 
 class Plane(object):
-  def __init__(self, config, coarse_heightmap, coarse_size):
+  def __init__(self, config, heightmap, size):
     print "Creating Plane..."
     self.size = config['size']
-    ratio = self.size // coarse_size
     print "  Generating Plane..."
-    spec_heightmap = generate_heightmap(ratio, config['height'], config['h'])
-    self.y = numpy.zeros((self.size + 1, self.size + 1))
-    for x in range(coarse_size):
-      for z in range(coarse_size):
-        for i in range(ratio):
-          for j in range(ratio):
-            self.y[x * ratio + i, z * ratio + j] = spec_heightmap[i, j] + coarse_heightmap[x, z]
+    self.y = numpy.zeros((self.size, self.size))
+    for x in range(self.size):
+      for z in range(self.size):
+            self.y[x, z] = heightmap.value(6, x, y)
     print "  ...Done"
     self.model_plane(self.size)
     print "...Done"

@@ -12,7 +12,7 @@ from OpenGL.GLUT import *
 class World(object):
   def __init__(self, config, unload):
     self.unload = unload
-    coarse_heightmap = generate_heightmap(config['coarse_size'], config['coarse_scale'], config['coarse_h'])
+    heightmap = Perlin()
     # maze = Maze(config['maze'])
     ground = Plane(config['ground'], coarse_heightmap, config['coarse_size'])
     self.contents = set([ground])

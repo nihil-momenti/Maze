@@ -33,19 +33,19 @@ class Perlin(object):
     return x1 * f + x2 * (1 - f)
 
   def smooth(self, octave, *x):
-    den = 2 ** len(x)
-    return self.smo_f(octave, [], x, den)
-    
-    
-  def smo_f(self, octave, y, x, den):
-    if len(x) == 0:
-      return self.noise(octave, *y) * den
-    x1 = self.smo_f(octave, y + [x[0]], x[1:], den)
-    x2 = self.smo_f(octave, y + [x[0] - 1], x[1:], 2 * den)
-    x3 = self.smo_f(octave, y + [x[0] + 1], x[1:], 2 * den)
-    return x1 + x2 + x3
-
-    
+    if len(x) == 1:
+      return self.noise(octave, x[0]) / 2 + (self.noise(octave, x[0] + 1) + self.noise(octave, x[0] - 1)) / 4
+    elif len(x) == 2:
+      center = self.noise(octave, *x)
+      sides = (self.noise(octave, x[0] + 1, x[1]) + 
+               self.noise(octave, x[0] - 1, x[1]) + 
+               self.noise(octave, x[0], x[1] + 1) + 
+               self.noise(octave, x[0], x[1] - 1))
+      corners = (self.noise(octave, x[0] + 1, x[1] + 1) + 
+                 self.noise(octave, x[0] + 1, x[1] - 1) + 
+                 self.noise(octave, x[0] - 1, x[1] - 1) + 
+                 self.noise(octave, x[0] - 1, x[1] + 1))
+      return center / 2 + sides * 3 / 32 + corners / 32
 
   def noise(self, octave, *x):
     return self.randomisers[octave].value(*x)
