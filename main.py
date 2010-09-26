@@ -1,11 +1,12 @@
 from __future__ import division
 
-from json import json
+from json import load
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import sys
+from world import World
+
 try:
   import psyco
   psyco.full()
@@ -28,7 +29,7 @@ def reshape(width, height):
 
 # Initialise GLUT and create a window
 
-config = json(file('world.config'))
+config = load(file('world.config'))
 
 glutInit(sys.argv)
 glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE)
@@ -38,7 +39,7 @@ if config['game_mode']:
 else:
   glutInitWindowSize(config['window_width'], config['window_height'])
   glutInitWindowPosition(0, 0)
-  glutCreateWindow()
+  glutCreateWindow("Robot")
   glViewport(0, 0, config['window_width'], config['window_height'])
 glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF)
 glutIgnoreKeyRepeat(1)
@@ -60,7 +61,7 @@ glEnable(GL_LIGHTING)
 glEnable(GL_LIGHT0)
 glEnable(GL_CULL_FACE)
 
-world = World(config['world'])
+world = World(config['world'], unload)
 
 glutDisplayFunc(world.display)
 glutReshapeFunc(reshape)

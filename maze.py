@@ -28,7 +28,7 @@ class Point(object):
 # 1 - Wall
 # 2 - Floor
 class Maze(object):
-  def __init__(self, config, heightmap): size, scale, heightmap, yscale, num_runners, dead_end_chance):
+  def __init__(self, config, heightmap):# size, scale, heightmap, yscale, num_runners, dead_end_chance):
     self.size, self.scale, y_scale = config['size'], config['scale'], config['y_scale']
     num_runners, dead_end_chance = config['num_runners'], config['dead_end_chance']
     self.map = numpy.zeros((size,size),numpy.int8)

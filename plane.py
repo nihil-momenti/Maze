@@ -1,6 +1,6 @@
 from __future__ import division
 
-import random, math
+import random, math, numpy
 from heightmap import generate_heightmap
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -18,20 +18,27 @@ def normal(center_point, clockwise, widdershins):
   
 
 
-class FirstPlane(object):
-  def __init__(self, size, height, h, roof=False, offset=0):
+class Plane(object):
+  def __init__(self, config, coarse_heightmap, coarse_size):
     print "Creating Plane..."
-    self.size = size
+    self.size = config['size']
+    ratio = self.size // coarse_size
     print "  Generating Plane..."
-    self.y = generate_heightmap(size, height, h)
+    spec_heightmap = generate_heightmap(ratio, config['height'], config['h'])
+    self.y = numpy.zeros((self.size + 1, self.size + 1))
+    for x in range(coarse_size):
+      for z in range(coarse_size):
+        for i in range(ratio):
+          for j in range(ratio):
+            self.y[x * ratio + i, z * ratio + j] = spec_heightmap[i, j] + coarse_heightmap[x, z]
     print "  ...Done"
-    self.model_plane(size, roof, offset)
+    self.model_plane(self.size)
     print "...Done"
     
   def display(self):
     glCallList(self.listID)
     
-  def model_plane(self, size, roof, offset):
+  def model_plane(self, size):
     print "  Generating models..."
     self.listID = glGenLists(1)
     glNewList(self.listID, GL_COMPILE_AND_EXECUTE)
@@ -78,21 +85,21 @@ class FirstPlane(object):
         glVertex(x   - size // 2, self.y[x  ,z+1], z+1 - size // 2)
         glNormal(n[x+1][z+1][0], n[x+1][z+1][1], n[x+1][z+1][2])
         glVertex(x+1 - size // 2, self.y[x+1,z+1], z+1 - size // 2)
-    if roof:
-      for x in range(size - 2):
-        for z in range(size - 2):
-          glNormal(-n[x][z][0], -n[x][z][1], -n[x][z][2])
-          glVertex(x   - size // 2, self.y[x  ,z  ] + offset, z   - size // 2)
-          glNormal(-n[x+1][z][0], -n[x+1][z][1], -n[x+1][z][2])
-          glVertex(x+1 - size // 2, self.y[x+1,z  ] + offset, z   - size // 2)
-          glNormal(-n[x+1][z+1][0], -n[x+1][z+1][1], -n[x+1][z+1][2])
-          glVertex(x+1 - size // 2, self.y[x+1,z+1] + offset, z+1 - size // 2)
-          glNormal(-n[x][z][0], -n[x][z][1], -n[x][z][2])
-          glVertex(x   - size // 2, self.y[x  ,z  ] + offset, z   - size // 2)
-          glNormal(-n[x+1][z+1][0], -n[x+1][z+1][1], -n[x+1][z+1][2])
-          glVertex(x+1 - size // 2, self.y[x+1,z+1] + offset, z+1 - size // 2)
-          glNormal(-n[x][z+1][0], -n[x][z+1][1], -n[x][z+1][2])
-          glVertex(x   - size // 2, self.y[x  ,z+1] + offset, z+1 - size // 2)
+    # if roof:
+      # for x in range(size - 2):
+        # for z in range(size - 2):
+          # glNormal(-n[x][z][0], -n[x][z][1], -n[x][z][2])
+          # glVertex(x   - size // 2, self.y[x  ,z  ] + offset, z   - size // 2)
+          # glNormal(-n[x+1][z][0], -n[x+1][z][1], -n[x+1][z][2])
+          # glVertex(x+1 - size // 2, self.y[x+1,z  ] + offset, z   - size // 2)
+          # glNormal(-n[x+1][z+1][0], -n[x+1][z+1][1], -n[x+1][z+1][2])
+          # glVertex(x+1 - size // 2, self.y[x+1,z+1] + offset, z+1 - size // 2)
+          # glNormal(-n[x][z][0], -n[x][z][1], -n[x][z][2])
+          # glVertex(x   - size // 2, self.y[x  ,z  ] + offset, z   - size // 2)
+          # glNormal(-n[x+1][z+1][0], -n[x+1][z+1][1], -n[x+1][z+1][2])
+          # glVertex(x+1 - size // 2, self.y[x+1,z+1] + offset, z+1 - size // 2)
+          # glNormal(-n[x][z+1][0], -n[x][z+1][1], -n[x][z+1][2])
+          # glVertex(x   - size // 2, self.y[x  ,z+1] + offset, z+1 - size // 2)
     glEnd()
     glEndList()
     print "  ...Done"
