@@ -19,14 +19,16 @@ def normal(center_point, clockwise, widdershins):
 
 
 class Plane(object):
-  def __init__(self, config, heightmap, size):
+  def __init__(self, config, heightmap):
     print "Creating Plane..."
     self.size = config['size']
+    self.height = config['height']
     print "  Generating Plane..."
     self.y = numpy.zeros((self.size, self.size))
-    for x in range(self.size):
-      for z in range(self.size):
-            self.y[x, z] = heightmap.value(6, x, y)
+    for x in range(-self.size // 2, self.size // 2):
+      for z in range(-self.size // 2, self.size // 2):
+            self.y[x, z] = self.height * heightmap.value(6, x, z)
+           # self.y[x, z] = self.height * math.cos(math.pi * math.sqrt(x ** 2 + z ** 2) / self.size) * heightmap.value(6, x, z)
     print "  ...Done"
     self.model_plane(self.size)
     print "...Done"
@@ -42,8 +44,8 @@ class Plane(object):
     glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, (0.6,0.3,0))
     n = [[[] for x in range(size+1)] for z in range(size+1)]
     norms = [[[] for x in range(size+1)] for z in range(size+1)]
-    for x in range(size):
-      for z in range(size):
+    for x in range(size-1):
+      for z in range(size-1):
         norm = normal(
           (x   - size // 2, self.y[x  ,z  ], z   - size // 2),
           (x+1 - size // 2, self.y[x+1,z  ], z   - size // 2),
@@ -59,16 +61,16 @@ class Plane(object):
         norms[x+1][z+1].append(norm)
         norms[x][z+1].append(norm)
     
-    for x in range(size+1):
-      for z in range(size+1):
+    for x in range(size):
+      for z in range(size):
         norm = [0,0,0]
         for k in range(len(norms[x][z])):
           norm[0] += norms[x][z][k][0] / len(norms[x][z])
           norm[1] += norms[x][z][k][1] / len(norms[x][z])
           norm[2] += norms[x][z][k][2] / len(norms[x][z])
         n[x][z] = norm
-    for x in range(size):
-      for z in range(size):
+    for x in range(size-1):
+      for z in range(size-1):
         glNormal(n[x][z][0], n[x][z][1], n[x][z][2])
         glVertex(x   - size // 2, self.y[x  ,z  ], z   - size // 2)
         glNormal(n[x+1][z+1][0], n[x+1][z+1][1], n[x+1][z+1][2])

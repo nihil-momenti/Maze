@@ -26,11 +26,12 @@ class Perlin(object):
     
   def int_f(self, octave, y, x, fx, cx):
     if len(fx) == 0:
+      print "( ", y, " : ", self.smooth(octave, *y), " )"
       return self.smooth(octave, *y)
     x1 = self.int_f(octave, y + [fx[0]], x[1:], fx[1:], cx[1:])
     x2 = self.int_f(octave, y + [cx[0]], x[1:], fx[1:], cx[1:])
-    f = (1 - cos(pi*(cx[0] - x[0]))) / 2
-    return x1 * f + x2 * (1 - f)
+    f = (1 - cos(pi*(x[0] - fx[0]))) / 2
+    return x1 * (1 - f) + x2 * f
 
   def smooth(self, octave, *x):
     if len(x) == 1:

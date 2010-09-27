@@ -4,6 +4,7 @@ from __future__ import division
 from maze import Maze
 from plane import *
 from player import Player
+from perlin import Perlin
 import time
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -12,9 +13,9 @@ from OpenGL.GLUT import *
 class World(object):
   def __init__(self, config, unload):
     self.unload = unload
-    heightmap = Perlin()
+    heightmap = Perlin(config['octaves'], config['persistence'])
     # maze = Maze(config['maze'])
-    ground = Plane(config['ground'], coarse_heightmap, config['coarse_size'])
+    ground = Plane(config['ground'], heightmap)
     self.contents = set([ground])
     self.player = Player(0,0)#(maze.startPoint.x - maze.width / 2) * maze.scale, (maze.startPoint.z - maze.height / 2) * maze.scale)
     
@@ -25,7 +26,7 @@ class World(object):
     # self.player.updateAccel()
     # self.player.updateView()
     glLoadIdentity()
-    gluLookAt(0, 100, 200, 0,0,0, 0,1,0)
+    gluLookAt(0, 20, 40, 0,0,0, 0,1,0)
     # gluLookAt(self.player.position[0], self.player.position[1], self.player.position[2],
                 # self.player.lookat[0],   self.player.lookat[1],   self.player.lookat[2],
                     # self.player.up[0],       self.player.up[1],       self.player.up[2])
