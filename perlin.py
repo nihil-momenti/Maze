@@ -26,7 +26,7 @@ class Perlin(object):
     
   def int_f(self, octave, y, x, fx, cx):
     if len(fx) == 0:
-      print "( ", y, " : ", self.smooth(octave, *y), " )"
+      # print "( ", y, " : ", self.smooth(octave, *y), " )"
       return self.smooth(octave, *y)
     x1 = self.int_f(octave, y + [fx[0]], x[1:], fx[1:], cx[1:])
     x2 = self.int_f(octave, y + [cx[0]], x[1:], fx[1:], cx[1:])
@@ -47,6 +47,8 @@ class Perlin(object):
                  self.noise(octave, x[0] - 1, x[1] - 1) + 
                  self.noise(octave, x[0] - 1, x[1] + 1))
       return center / 2 + sides * 3 / 32 + corners / 32
+    else:
+      return self.noise(octave, *x)
 
   def noise(self, octave, *x):
     return self.randomisers[octave].value(*x)

@@ -7,9 +7,10 @@ from math import cos, pi, sqrt
 # m = Maze(20, 40, 5, 0.6)
 # m.p()
 
-size = 128
+size = 1024
 p = Perlin(6, 0.5)
-data = [128 * p.value(6, x, y) + 171 * cos(pi / 118 * sqrt((x - size/2) ** 2 + (y - size/2) ** 2)) for x in range(size) for y in range(size)]
+data = [256 * p.value(6, x, y) + 128 for x in range(-size//2,size//2) for y in range(-size//2,size//2)]
+# data = [128 * p.value(1, x, y) + 171 * cos(pi / 118 * sqrt((x - size/2) ** 2 + (y - size/2) ** 2)) for x in range(size) for y in range(size)]
 colour = [(0,datum,0) if datum > 128 else (0,0,256-datum) for datum in data]
 im = Image.new("RGB", (size,size))
 im.putdata(colour)

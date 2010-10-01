@@ -20,84 +20,67 @@ def normal(center_point, clockwise, widdershins):
 
 class Plane(object):
   def __init__(self, config, heightmap):
-    print "Creating Plane..."
     self.size = config['size']
+    self.scale = config['scale']
     self.height = config['height']
-    print "  Generating Plane..."
+    self.octaves = config['octaves']
+    
     self.y = numpy.zeros((self.size, self.size))
-    for x in range(-self.size // 2, self.size // 2):
-      for z in range(-self.size // 2, self.size // 2):
-            self.y[x, z] = self.height * heightmap.value(6, x, z)
-           # self.y[x, z] = self.height * math.cos(math.pi * math.sqrt(x ** 2 + z ** 2) / self.size) * heightmap.value(6, x, z)
-    print "  ...Done"
-    self.model_plane(self.size)
-    print "...Done"
+    for x in range(self.size):
+      for z in range(self.size):
+        # self.y[x, z] = self.height * heightmap.value(self.octaves, (x - self.size // 2) * self.scale, (z - self.size // 2) * self.scale)
+        self.y[x, z] = self.height * math.cos(math.pi * math.sqrt(x ** 2 + z ** 2) / self.size) * heightmap.value(self.octaves, (x - self.size // 2) * self.scale, (z - self.size // 2) * self.scale)
     
   def display(self):
     glCallList(self.listID)
     
-  def model_plane(self, size):
+  def gl_init(self):
     print "  Generating models..."
     self.listID = glGenLists(1)
     glNewList(self.listID, GL_COMPILE_AND_EXECUTE)
     glBegin(GL_TRIANGLES)
     glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, (0.6,0.3,0))
-    n = [[[] for x in range(size+1)] for z in range(size+1)]
-    norms = [[[] for x in range(size+1)] for z in range(size+1)]
-    for x in range(size-1):
-      for z in range(size-1):
+    n = [[[] for x in range(self.size+1)] for z in range(self.size+1)]
+    norms = [[[] for x in range(self.size+1)] for z in range(self.size+1)]
+    for x in range(self.size-1):
+      for z in range(self.size-1):
         norm = normal(
-          (x   - size // 2, self.y[x  ,z  ], z   - size // 2),
-          (x+1 - size // 2, self.y[x+1,z  ], z   - size // 2),
-          (x+1 - size // 2, self.y[x+1,z+1], z+1 - size // 2))
+          ((x   - self.size // 2) * self.scale, self.y[x  ,z  ], (z   - self.size // 2) * self.scale),
+          ((x+1 - self.size // 2) * self.scale, self.y[x+1,z  ], (z   - self.size // 2) * self.scale),
+          ((x+1 - self.size // 2) * self.scale, self.y[x+1,z+1], (z+1 - self.size // 2) * self.scale))
         norms[x][z].append(norm)
         norms[x+1][z].append(norm)
         norms[x+1][z+1].append(norm)
         norm = normal(
-          (x   - size // 2, self.y[x  ,z  ], z   - size // 2),
-          (x+1 - size // 2, self.y[x+1,z+1], z+1 - size // 2),
-          (x   - size // 2, self.y[x  ,z+1], z+1 - size // 2))
+          ((x   - self.size // 2) * self.scale, self.y[x  ,z  ], (z   - self.size // 2) * self.scale),
+          ((x+1 - self.size // 2) * self.scale, self.y[x+1,z+1], (z+1 - self.size // 2) * self.scale),
+          ((x   - self.size // 2) * self.scale, self.y[x  ,z+1], (z+1 - self.size // 2) * self.scale))
         norms[x][z].append(norm)
         norms[x+1][z+1].append(norm)
         norms[x][z+1].append(norm)
     
-    for x in range(size):
-      for z in range(size):
+    for x in range(self.size):
+      for z in range(self.size):
         norm = [0,0,0]
         for k in range(len(norms[x][z])):
           norm[0] += norms[x][z][k][0] / len(norms[x][z])
           norm[1] += norms[x][z][k][1] / len(norms[x][z])
           norm[2] += norms[x][z][k][2] / len(norms[x][z])
         n[x][z] = norm
-    for x in range(size-1):
-      for z in range(size-1):
+    for x in range(self.size-1):
+      for z in range(self.size-1):
         glNormal(n[x][z][0], n[x][z][1], n[x][z][2])
-        glVertex(x   - size // 2, self.y[x  ,z  ], z   - size // 2)
+        glVertex((x   - self.size // 2) * self.scale, self.y[x  ,z  ], (z   - self.size // 2) * self.scale)
         glNormal(n[x+1][z+1][0], n[x+1][z+1][1], n[x+1][z+1][2])
-        glVertex(x+1 - size // 2, self.y[x+1,z+1], z+1 - size // 2)
+        glVertex((x+1 - self.size // 2) * self.scale, self.y[x+1,z+1], (z+1 - self.size // 2) * self.scale)
         glNormal(n[x+1][z][0], n[x+1][z][1], n[x+1][z][2])
-        glVertex(x+1 - size // 2, self.y[x+1,z  ], z   - size // 2)
+        glVertex((x+1 - self.size // 2) * self.scale, self.y[x+1,z  ], (z   - self.size // 2) * self.scale)
         glNormal(n[x][z][0], n[x][z][1], n[x][z][2])
-        glVertex(x   - size // 2, self.y[x  ,z  ], z   - size // 2)
+        glVertex((x   - self.size // 2) * self.scale, self.y[x  ,z  ], (z   - self.size // 2) * self.scale)
         glNormal(n[x][z+1][0], n[x][z+1][1], n[x][z+1][2])
-        glVertex(x   - size // 2, self.y[x  ,z+1], z+1 - size // 2)
+        glVertex((x   - self.size // 2) * self.scale, self.y[x  ,z+1], (z+1 - self.size // 2) * self.scale)
         glNormal(n[x+1][z+1][0], n[x+1][z+1][1], n[x+1][z+1][2])
-        glVertex(x+1 - size // 2, self.y[x+1,z+1], z+1 - size // 2)
-    # if roof:
-      # for x in range(size - 2):
-        # for z in range(size - 2):
-          # glNormal(-n[x][z][0], -n[x][z][1], -n[x][z][2])
-          # glVertex(x   - size // 2, self.y[x  ,z  ] + offset, z   - size // 2)
-          # glNormal(-n[x+1][z][0], -n[x+1][z][1], -n[x+1][z][2])
-          # glVertex(x+1 - size // 2, self.y[x+1,z  ] + offset, z   - size // 2)
-          # glNormal(-n[x+1][z+1][0], -n[x+1][z+1][1], -n[x+1][z+1][2])
-          # glVertex(x+1 - size // 2, self.y[x+1,z+1] + offset, z+1 - size // 2)
-          # glNormal(-n[x][z][0], -n[x][z][1], -n[x][z][2])
-          # glVertex(x   - size // 2, self.y[x  ,z  ] + offset, z   - size // 2)
-          # glNormal(-n[x+1][z+1][0], -n[x+1][z+1][1], -n[x+1][z+1][2])
-          # glVertex(x+1 - size // 2, self.y[x+1,z+1] + offset, z+1 - size // 2)
-          # glNormal(-n[x][z+1][0], -n[x][z+1][1], -n[x][z+1][2])
-          # glVertex(x   - size // 2, self.y[x  ,z+1] + offset, z+1 - size // 2)
+        glVertex((x+1 - self.size // 2) * self.scale, self.y[x+1,z+1], (z+1 - self.size // 2) * self.scale)
     glEnd()
     glEndList()
     print "  ...Done"
