@@ -8,9 +8,9 @@ from perlin import Perlin
 class World(object):
   def __init__(self, config):
     self.heightmap = Perlin(config['octaves'], config['persistence'])
-    # maze = Maze(config['maze'])
-    ground = Plane(config['ground'], self.heightmap)
-    self.contents = set([ground])
+    maze = Maze(config['maze'])
+    # ground = Plane(config['ground'], self.heightmap)
+    self.contents = set([maze])
   
   def gl_init(self):
     [thing.gl_init() for thing in self.contents]
