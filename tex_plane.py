@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 import random, math, numpy
@@ -27,7 +28,7 @@ class Plane(object):
     self.t = numpy.zeros((self.size, self.size), numpy.dtype('3u1'))
     for x in range(self.size):
       for z in range(self.size):
-        value = (math.cos(math.pi * math.sqrt((x - self.size // 2) ** 2 + (z - self.size // 2) ** 2) / self.size) + 0.1) * (heightmap.value(self.octaves, (x - self.size // 2), (z - self.size // 2)) + 1)
+        value = (math.cos(math.pi * math.sqrt((x - self.size // 2) ** 2 + (z - self.size // 2) ** 2) / self.size) + 0.1) * (heightmap.value((x - self.size // 2), (z - self.size // 2), octaves=self.octaves) + 1)
         self.y[x, z] = value * self.height
         if value > 0.5:
           self.t[z, x][1] = 0xFF

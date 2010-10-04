@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 from math import floor, ceil, cos, pi
@@ -9,9 +10,13 @@ class Perlin(object):
     self.octaves = octaves
     self.p = persistence
     self.randomisers = [Randomiser() for i in range(octaves)]
+  
+  def __getitem__(self, key):
+    return self.value(*key)
 
-  def value(self, octaves, *x):
+  def value(self, *x, **params):
     k = 0.0
+    octaves = params['octave'] if 'octave' in params else self.octaves
     for octave in range(self.octaves - octaves):
       x = [xn / 2 for xn in x]
     for octave in range(self.octaves - octaves, self.octaves):

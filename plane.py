@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 import random, math, numpy
@@ -29,7 +30,7 @@ class Plane(object):
     for x in range(self.size):
       for z in range(self.size):
         # self.y[x, z] = self.height * heightmap.value(self.octaves, (x - self.size // 2) * self.scale, (z - self.size // 2) * self.scale)
-        self.y[x, z] = self.height * math.cos(math.pi * math.sqrt(x ** 2 + z ** 2) / self.size) * heightmap.value(self.octaves, (x - self.size // 2) * self.scale, (z - self.size // 2) * self.scale)
+        self.y[x, z] = self.height * math.cos(math.pi * math.sqrt(x ** 2 + z ** 2) / self.size) * heightmap.value((x - self.size // 2) * self.scale, (z - self.size // 2) * self.scale, octaves=self.octaves)
     
   def display(self):
     glCallList(self.listID)
