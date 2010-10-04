@@ -11,24 +11,23 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
+def cross(a, b):
+  return (a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0])
+
 def normal(center_point, clockwise, widdershins):
-  numpy.inner(widdershins - center_point, clockwise - center_point)
-  #print center_point, clockwise, widdershins
-  n = [clockwise[z] - center_point[z] for z in range(3)]
-  p = [widdershins[z] - center_point[z] for z in range(3)]
-  #print n, p
-  cross = [p[1] * n[2] - p[2] * n[1], p[2] * n[0] - p[0] * n[2], p[0] * n[1] - p[1] * n[0]]
-  #print cross
-  length = math.sqrt(cross[0] ** 2 + cross[1] ** 2 + cross[2] ** 2)
-  n = [cross[z] / length for z in range(3)]
+  n = numpy.zeros((len(center_point),len(center_point[0]),3))
+  for i in range(len(center_point)):
+    for j in range(len(center_point[0])):
+      n[i,j] = cross((widdershins - center_point)[i,j], (clockwise - center_point)[i,j])
   return n
 
 def smoothed_normals(y, size, x_scale, z_scale):
+  # print y
   a = numpy.asarray([[(x * x_scale, y[x,z], z * z_scale) for z in range(size)] for x in range(size)])
   n = (normal(a[1:-2, 1:-2], a[ :-3,1:-2], a[1:-2, :-3]) +
-       normal(a[1:-2, 1:-2], a[1:-2, :-3], a[2:  ,1:-2]) +
-       normal(a[1:-2, 1:-2], a[2:  ,1:-2], a[1:-2,2:  ]) +
-       normal(a[1:-2, 1:-2], a[1:-2,2:  ], a[ :-3,1:-2])) / 4
+       normal(a[1:-2, 1:-2], a[1:-2, :-3], a[2:-1,1:-2]) +
+       normal(a[1:-2, 1:-2], a[2:-1,1:-2], a[1:-2,2:-1]) +
+       normal(a[1:-2, 1:-2], a[1:-2,2:-1], a[ :-3,1:-2])) / 4
   return n
 
 
@@ -144,7 +143,7 @@ class Maze(object):
         z1 = (z + 0.5 - self.size / 2) * self.scale + self.scale / 2
         z2 = (z + 0.5 - self.size / 2) * self.scale - self.scale / 2
         if self.map[x,z] == 2:
-          self.generate_roof(x1, x2, y1, y2, z1, z2)
+          #self.generate_roof(x1, x2, y1, y2, z1, z2)
           self.generate_floor(x1, x2, y1, y2, z1, z2)
         else:
           if x != self.size - 1 and self.map[x+1,z] == 2:
@@ -187,13 +186,13 @@ class Maze(object):
       for j in range(1, size - 2):
         z3 = z1 + j * z_scale
         z4 = z3 + z_scale
-        glNormal(*n[i-1][j-1]); glVertex(x3, y2 + y[i  ,j  ], z3)
-        glNormal(*n[i  ][j  ]); glVertex(x4, y2 + y[i+1,j+1], z4)
-        glNormal(*n[i  ][j-1]); glVertex(x4, y2 + y[i+1,j  ], z3)
+        glNormal(*n[i-2][j-2]); glVertex(x3, y2 + y[i  ,j  ], z3)
+        glNormal(*n[i-1][j-1]); glVertex(x4, y2 + y[i+1,j+1], z4)
+        glNormal(*n[i-1][j-2]); glVertex(x4, y2 + y[i+1,j  ], z3)
         
-        glNormal(*n[i-1][j-1]); glVertex(x3, y2 + y[i  ,j  ], z3)
-        glNormal(*n[i-1][j  ]); glVertex(x3, y2 + y[i  ,j+1], z4)
-        glNormal(*n[i  ][j  ]); glVertex(x4, y2 + y[i+1,j+1], z4)
+        glNormal(*n[i-2][j-2]); glVertex(x3, y2 + y[i  ,j  ], z3)
+        glNormal(*n[i-2][j-1]); glVertex(x3, y2 + y[i  ,j+1], z4)
+        glNormal(*n[i-1][j-1]); glVertex(x4, y2 + y[i+1,j+1], z4)
   
   
   def generate_roof(self, x1, x2, y1, y2, z1, z2):
