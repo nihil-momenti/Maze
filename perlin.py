@@ -7,7 +7,7 @@ from math import floor, ceil, cos, pi
 from randomiser import Randomiser
 
 class Perlin(object):
-  small = numpy.asarray((1, 3, 5, 7, 11, 13, 17, 23, 29),'int64')
+  small = numpy.asarray((1, 11, 29, 43, 67, 89, 17, 23, 29),'int64')
   
   def __init__(self):
       self.big1 = random.randint(10000,20000)

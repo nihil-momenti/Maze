@@ -19,22 +19,22 @@ def normal(center_point, clockwise, widdershins):
   n = numpy.zeros((len(center_point),len(center_point[0]),3))
   for i in range(len(center_point)):
     for j in range(len(center_point[0])):
-      n[i,j] = cross((widdershins - center_point)[i,j], (clockwise - center_point)[i,j])
+      norm = numpy.cross((widdershins - center_point)[i,j], (clockwise - center_point)[i,j])
+      n[i,j] = norm / numpy.linalg.norm(norm)
   return n
 
 
 def smoothed_normals(a, direction):
-  # print y
   if direction == 'forward':
-    n = (normal(a[1:-2, 1:-2], a[ :-3,1:-2], a[1:-2, :-3]) +
-         normal(a[1:-2, 1:-2], a[1:-2, :-3], a[2:-1,1:-2]) +
-         normal(a[1:-2, 1:-2], a[2:-1,1:-2], a[1:-2,2:-1]) +
-         normal(a[1:-2, 1:-2], a[1:-2,2:-1], a[ :-3,1:-2])) / 4
+    n = (normal(a[1:-1, 1:-1], a[ :-2,1:-1], a[1:-1, :-2]) +
+         normal(a[1:-1, 1:-1], a[1:-1, :-2], a[2:  ,1:-1]) +
+         normal(a[1:-1, 1:-1], a[2:  ,1:-1], a[1:-1,2:  ]) +
+         normal(a[1:-1, 1:-1], a[1:-1,2:  ], a[ :-2,1:-1])) / 4
   elif direction == 'backward':
-    n = (normal(a[1:-2, 1:-2], a[1:-2, :-3], a[ :-3,1:-2]) +
-         normal(a[1:-2, 1:-2], a[2:-1,1:-2], a[1:-2, :-3]) +
-         normal(a[1:-2, 1:-2], a[1:-2,2:-1], a[2:-1,1:-2]) +
-         normal(a[1:-2, 1:-2], a[ :-3,1:-2], a[1:-2,2:-1])) / 4
+    n = (normal(a[1:-1, 1:-1], a[1:-1, :-2], a[ :-2,1:-1]) +
+         normal(a[1:-1, 1:-1], a[2:  ,1:-1], a[1:-1, :-2]) +
+         normal(a[1:-1, 1:-1], a[1:-1,2:  ], a[2:  ,1:-1]) +
+         normal(a[1:-1, 1:-1], a[ :-2,1:-1], a[1:-1,2:  ])) / 4
   return n
 
 
@@ -78,237 +78,111 @@ class Cell(object):
   def generate_list(self):
     glNewList(self.listID, GL_COMPILE_AND_EXECUTE); glBegin(GL_TRIANGLES)
     
-    # glColor(0.6,0.3,0)
-    roof =  self.y_scale * self.scale / 2
-    flor = -self.y_scale * self.scale / 2
+    roof = -self.y_scale * self.scale / 2
+    flor = +self.y_scale * self.scale / 2
     rite =  self.x * self.scale + self.scale / 2
     left =  self.x * self.scale - self.scale / 2
     ford =  self.z * self.scale + self.scale / 2
     back =  self.z * self.scale - self.scale / 2
     
-    self.generate_flor(left, rite, flor, back, ford)
-    self.generate_roof(left, rite, roof, back, ford)
+    self.generate_wall(left, rite, flor, roof, back, ford, 1, 'forward')
+    self.generate_wall(left, rite, flor, roof, back, ford, 1, 'backward')
     for wall in self.walls:
-      if   wall == 'right':   self.generate_rite(      rite, roof, flor, back, ford)
-      elif wall == 'left':    self.generate_left(left,       roof, flor, back, ford)
-      elif wall == 'forward': self.generate_ford(left, rite, roof, flor,       ford)
-      elif wall == 'back':    self.generate_back(left, rite, roof, flor, back      )
+      if   wall == 'right':   self.generate_wall(left, rite, flor, roof, back, ford, 0, 'forward')
+      elif wall == 'left':    self.generate_wall(left, rite, flor, roof, back, ford, 0, 'backward')
+      elif wall == 'forward': self.generate_wall(left, rite, flor, roof, back, ford, 2, 'forward')
+      elif wall == 'back':    self.generate_wall(left, rite, flor, roof, back, ford, 2, 'backward')
     
     glEnd(); glEndList()
   
-  def generate_flor(self, left, rite, flor, back, ford):
-    res = self.res
-    size = self.res + 4
-    y_scale = self.dist
-    x_scale = (rite - left) / res
-    z_scale = (ford - back) / res
+  def generate_wall(self, left, rite, flor, roof, back, ford, xyz, direction):
+    size = self.res + 3
+    scales = [(rite - left) / self.res, (roof - flor) / self.res, (ford - back) / self.res]
+    scales[xyz] = self.dist
     
-    y = numpy.zeros((size, size))
+    frnts = [rite, roof, ford]
+    backs = [left, flor, back]
+    
+    disp = numpy.zeros((size, size))
     for i in range(size):
-      x = left + (i - 1) * x_scale
+      a = backs[xyz - 1] + (i - 1) * scales[xyz - 1]
       for j in range(size):
-        z = back + (j - 1) * z_scale
-        y[i, j] = self.disp_map[x, flor, z] * y_scale
-    y[(1,-3), 1:-1] = numpy.zeros((2,size-2))
-    y[1:-1, (1,-3)] = numpy.zeros((size-2,2))
+        b = backs[xyz + 1 - 3] + (j - 1) * scales[xyz + 1 - 3]
+        c = [backs[xyz], b, a] if xyz == 0 else [a, backs[xyz], b] if xyz == 1 else [b, a, backs[xyz]]
+        disp[i, j] = self.disp_map[c[0], c[1], c[2]] * scales[xyz]
+    disp[(1,-2), 1:-1] = numpy.zeros((2,size-2))
+    disp[1:-1, (1,-2)] = numpy.zeros((size-2,2))
     
-    a = numpy.asarray([[(x * x_scale, y[x,z], z * z_scale) for z in range(size)] for x in range(size)])
-    n = smoothed_normals(a, 'forward')
+    a = numpy.asarray(
+      [
+        [
+          [disp[a, b], b * scales[xyz + 1 - 3], a * scales[xyz - 1]] if xyz == 0 else
+          [a * scales[xyz - 1], disp[a, b], b * scales[xyz + 1 - 3]] if xyz == 1 else
+          [b * scales[xyz + 1 - 3], a * scales[xyz - 1], disp[a, b]]
+        for b in range(size)
+        ]
+      for a in range(size)
+      ]
+    )
+    n = smoothed_normals(a, direction)
     
-    for i in range(1, size - 3):
-      x1 = left + (i - 1) * x_scale; x2 = x1 + x_scale
-      for j in range(1, size - 3):
-        z1 = back + (j - 1) * z_scale; z2 = z1 + z_scale
+    for i in range(1, size - 2):
+      a1 = backs[xyz - 1] + (i - 1) * scales[xyz - 1]; a2 = a1 + scales[xyz - 1]
+      for j in range(1, size - 2):
+        b1 = backs[xyz + 1 - 3] + (j - 1) * scales[xyz + 1 - 3]; b2 = b1 + scales[xyz + 1 - 3]
         
-        x = x1; y1 = (flor + y[i  , j  ]); z = z1
-        tx = x / self.size / self.scale; ty = y1 / self.size / self.y_scale; tz = z / self.size / self.scale
-        glNormal(*n[i-1][j-1]); glTexCoord3f(tx, ty, tz); glVertex(x, y1, z)
         
-        x = x2; y1 = (flor + y[i+1, j+1]); z = z2
-        tx = x / self.size / self.scale; ty = y1 / self.size / self.y_scale; tz = z / self.size / self.scale
-        glNormal(*n[i  ][j  ]); glTexCoord3f(tx, ty, tz); glVertex(x, y1, z)
+        if direction == 'forward':
+          c = [frnts[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [frnts[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [frnts[xyz] + disp[i+1, j], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i][j-1]); glTexCoord3f(*t); glVertex(*c)
+        else:
+          c = [backs[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [backs[xyz] + disp[i+1, j], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i][j-1]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [backs[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
+          
         
-        x = x2; y1 = (flor + y[i+1, j  ]); z = z1
-        tx = x / self.size / self.scale; ty = y1 / self.size / self.y_scale; tz = z / self.size / self.scale
-        glNormal(*n[i  ][j-1]); glTexCoord3f(tx, ty, tz); glVertex(x, y1, z)
-        
-        x = x1; y1 = (flor + y[i  , j  ]); z = z1
-        tx = x / self.size / self.scale; ty = y1 / self.size / self.y_scale; tz = z / self.size / self.scale
-        glNormal(*n[i-1][j-1]); glTexCoord3f(tx, ty, tz); glVertex(x, y1, z)
-        
-        x = x1; y1 = (flor + y[i  , j+1]); z = z2
-        tx = x / self.size / self.scale; ty = y1 / self.size / self.y_scale; tz = z / self.size / self.scale
-        glNormal(*n[i-1][j  ]); glTexCoord3f(tx, ty, tz); glVertex(x, y1, z)
-        
-        x = x2; y1 = (flor + y[i+1, j+1]); z = z2
-        tx = x / self.size / self.scale; ty = y1 / self.size / self.y_scale; tz = z / self.size / self.scale
-        glNormal(*n[i  ][j  ]); glTexCoord3f(tx, ty, tz); glVertex(x, y1, z)
-  
-  def generate_roof(self, left, rite, roof, back, ford):
-    res = self.res
-    size = self.res + 4
-    y_scale = self.dist
-    x_scale = (rite - left) / res
-    z_scale = (ford - back) / res
+        if direction == 'forward':
+          c = [frnts[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [frnts[xyz] + disp[i, j+1], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i-1][j]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [frnts[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
+        else:
+          c = [backs[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [backs[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
+          
+          c = [backs[xyz] + disp[i, j+1], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [ci / self.size / self.scale for ci in c]
+          glNormal(*n[i-1][j]); glTexCoord3f(*t); glVertex(*c)
     
-    y = numpy.zeros((size, size))
-    for i in range(size):
-      x = left + (i - 1) * x_scale
-      for j in range(size):
-        z = back + (j - 1) * z_scale
-        y[i, j] = self.disp_map[x, roof, z] * y_scale
-    y[(1,-3), 1:-1] = numpy.zeros((2,size-2))
-    y[1:-1, (1,-3)] = numpy.zeros((size-2,2))
-    
-    a = numpy.asarray([[(x * x_scale, y[x,z], z * z_scale) for z in range(size)] for x in range(size)])
-    n = smoothed_normals(a, 'backward')
-    
-    for i in range(1, size - 3):
-      x1 = left + (i - 1) * x_scale
-      x2 = x1 + x_scale
-      for j in range(1, size - 3):
-        z1 = back + (j - 1) * z_scale
-        z2 = z1 + z_scale
-        glNormal(*n[i-1][j-1]); glVertex(x1, roof + y[i  ,j  ], z1)
-        glNormal(*n[i  ][j-1]); glVertex(x2, roof + y[i+1,j  ], z1)
-        glNormal(*n[i  ][j  ]); glVertex(x2, roof + y[i+1,j+1], z2)
-        
-        glNormal(*n[i-1][j-1]); glVertex(x1, roof + y[i  ,j  ], z1)
-        glNormal(*n[i  ][j  ]); glVertex(x2, roof + y[i+1,j+1], z2)
-        glNormal(*n[i-1][j  ]); glVertex(x1, roof + y[i  ,j+1], z2)
-  
-  def generate_left(self, left, roof, flor, back, ford):
-    res = self.res
-    size = self.res + 4
-    y_scale = (roof - flor) / res
-    x_scale = self.dist
-    z_scale = (ford - back) / res
-    
-    x = numpy.zeros((size, size))
-    for i in range(size):
-      y = flor + (i - 1) * y_scale
-      for j in range(size):
-        z = back + (j - 1) * z_scale
-        x[i, j] = self.disp_map[left, y, z] * x_scale
-    x[(1,-3), 1:-1] = numpy.zeros((2,size-2))
-    x[1:-1, (1,-3)] = numpy.zeros((size-2,2))
-    
-    a = numpy.asarray([[(x[y,z], y * y_scale, z * z_scale) for z in range(size)] for y in range(size)])
-    n = smoothed_normals(a, 'backward')
-    
-    for i in range(1, size - 3):
-      y1 = flor + (i - 1) * y_scale
-      y2 = y1 + y_scale
-      for j in range(1, size - 3):
-        z1 = back + (j - 1) * z_scale
-        z2 = z1 + z_scale
-        glNormal(*n[i-1][j-1]); glVertex(left + x[i  ,j  ], y1, z1)
-        glNormal(*n[i  ][j-1]); glVertex(left + x[i+1,j  ], y2, z1)
-        glNormal(*n[i  ][j  ]); glVertex(left + x[i+1,j+1], y2, z2)
-        
-        glNormal(*n[i-1][j-1]); glVertex(left + x[i  ,j  ], y1, z1)
-        glNormal(*n[i  ][j  ]); glVertex(left + x[i+1,j+1], y2, z2)
-        glNormal(*n[i-1][j  ]); glVertex(left + x[i  ,j+1], y1, z2)
-  
-  def generate_rite(self, rite, roof, flor, back, ford):
-    res = self.res
-    size = self.res + 4
-    y_scale = (roof - flor) / res
-    x_scale = self.dist
-    z_scale = (ford - back) / res
-    
-    x = numpy.zeros((size, size))
-    for i in range(size):
-      y = flor + (i - 1) * y_scale
-      for j in range(size):
-        z = back + (j - 1) * z_scale
-        x[i, j] = self.disp_map[rite, y, z] * x_scale
-    x[(1,-3), 1:-1] = numpy.zeros((2,size-2))
-    x[1:-1, (1,-3)] = numpy.zeros((size-2,2))
-    
-    a = numpy.asarray([[(x[y,z], y * y_scale, z * z_scale) for z in range(size)] for y in range(size)])
-    n = smoothed_normals(a, 'forward')
-    
-    for i in range(1, size - 3):
-      y1 = flor + (i - 1) * y_scale
-      y2 = y1 + y_scale
-      for j in range(1, size - 3):
-        z1 = back + (j - 1) * z_scale
-        z2 = z1 + z_scale
-        glNormal(*n[i-1][j-1]); glVertex(rite + x[i  ,j  ], y1, z1)
-        glNormal(*n[i  ][j  ]); glVertex(rite + x[i+1,j+1], y2, z2)
-        glNormal(*n[i  ][j-1]); glVertex(rite + x[i+1,j  ], y2, z1)
-        
-        glNormal(*n[i-1][j-1]); glVertex(rite + x[i  ,j  ], y1, z1)
-        glNormal(*n[i-1][j  ]); glVertex(rite + x[i  ,j+1], y1, z2)
-        glNormal(*n[i  ][j  ]); glVertex(rite + x[i+1,j+1], y2, z2)
-  
-  def generate_ford(self, left, rite, roof, flor, ford):
-    res = self.res
-    size = self.res + 4
-    y_scale = (roof - flor) / res
-    x_scale = (rite - left) / res
-    z_scale = self.dist
-    
-    z = numpy.zeros((size, size))
-    for i in range(size):
-      x = left + (i - 1) * x_scale
-      for j in range(size):
-        y = flor + (j - 1) * y_scale
-        z[i, j] = self.disp_map[x, y, ford] * z_scale
-    z[(1,-3), 1:-1] = numpy.zeros((2,size-2))
-    z[1:-1, (1,-3)] = numpy.zeros((size-2,2))
-    
-    a = numpy.asarray([[(x * x_scale, y * y_scale, z[x,y]) for y in range(size)] for x in range(size)])
-    n = smoothed_normals(a, 'forward')
-    
-    for i in range(1, size - 3):
-      x1 = left + (i - 1) * x_scale
-      x2 = x1 + x_scale
-      for j in range(1, size - 3):
-        y1 = flor + (j - 1) * y_scale
-        y2 = y1 + y_scale
-        glNormal(*n[i-1][j-1]); glVertex(x1, y1, ford + z[i  ,j  ])
-        glNormal(*n[i  ][j  ]); glVertex(x2, y2, ford + z[i+1,j+1])
-        glNormal(*n[i  ][j-1]); glVertex(x2, y1, ford + z[i+1,j  ])
-        
-        glNormal(*n[i-1][j-1]); glVertex(x1, y1, ford + z[i  ,j  ])
-        glNormal(*n[i-1][j  ]); glVertex(x1, y2, ford + z[i  ,j+1])
-        glNormal(*n[i  ][j  ]); glVertex(x2, y2, ford + z[i+1,j+1])
-  
-  def generate_back(self, left, rite, roof, flor, back):
-    res = self.res
-    size = self.res + 4
-    y_scale = (roof - flor) / res
-    x_scale = (rite - left) / res
-    z_scale = self.dist
-    
-    z = numpy.zeros((size, size))
-    for i in range(size):
-      x = left + (i - 1) * x_scale
-      for j in range(size):
-        y = flor + (j - 1) * y_scale
-        z[i, j] = self.disp_map[x, y, back] * z_scale
-    z[(1,-3), 1:-1] = numpy.zeros((2,size-2))
-    z[1:-1, (1,-3)] = numpy.zeros((size-2,2))
-    
-    a = numpy.asarray([[(x * x_scale, y * y_scale, z[x,y]) for y in range(size)] for x in range(size)])
-    n = smoothed_normals(a, 'backward')
-    
-    for i in range(1, size - 3):
-      x1 = left + (i - 1) * x_scale
-      x2 = x1 + x_scale
-      for j in range(1, size - 3):
-        y1 = flor + (j - 1) * y_scale
-        y2 = y1 + y_scale
-        glNormal(*n[i-1][j-1]); glVertex(x1, y1, back + z[i  ,j  ])
-        glNormal(*n[i  ][j-1]); glVertex(x2, y1, back + z[i+1,j  ])
-        glNormal(*n[i  ][j  ]); glVertex(x2, y2, back + z[i+1,j+1])
-        
-        glNormal(*n[i-1][j-1]); glVertex(x1, y1, back + z[i  ,j  ])
-        glNormal(*n[i  ][j  ]); glVertex(x2, y2, back + z[i+1,j+1])
-        glNormal(*n[i-1][j  ]); glVertex(x1, y2, back + z[i  ,j+1])
-  
   def display(self):
     glCallList(self.listID)
   
@@ -369,11 +243,11 @@ class Maze(object):
     
   def gen_tex(self, tex_map, res):
     self.texture = numpy.zeros((res,res,res,3),'ubyte')
-    brown = Vector3(0, 0, 0)
+    brown = Vector3(101, 67, 33)
     for x in range(res):
       for y in range(res):
         for z in range(res):
-          value = int(tex_map[x,y,z] * 255)
+          value = int(tex_map[x,y,z] * 20)
           self.texture[x,y,z] = list(Vector3(value, value, value) + brown)
     
     
