@@ -15,8 +15,18 @@ except ImportError:
   print "Psyco not available"
 
 config = load(file('world.config'))
+print "Creating world..."
 world       = World(config['world'])
-player      = Player(config['player'])
+print "...Done"
+print "Loading player..."
+player      = Player(config['player'], world.start_point)
+print "...Done"
+print "Generating View..."
 view        = View(player, world, config['view'])
+print "...Done"
+print "Loading controller..."
 controller  = Controller(player, world, view, config['controller'])
+print "...Done"
+print
+print "Welcome to the Labyrinth"
 controller.run()

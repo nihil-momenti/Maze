@@ -21,15 +21,16 @@ class View(object):
     BACKGROUND = (0.95, 0.95, 0.95, 1)
     
     def __init__(self, player, scene, config):
-        """Initialise the view, with lots of common default parameters"""
+        print "  Loading config..."
         self.scene = scene
         self.player = player
         self.fov = config['fov']
         self.near = config['near']
         self.far = config['far']
         self.aspect = self.width = self.height = 0
+        print "  ...Done"
         
-        #Initialise GLUT and create a window
+        print "  Initialising GLUT..."
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE)
         if config['game_mode']:
@@ -40,20 +41,26 @@ class View(object):
           glutCreateWindow("Robot")
         glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF)
         glutIgnoreKeyRepeat(1)
+        print "  ...Done"
         
-        # Set up the OpenGL engine into a simple basic state
+        print "  Setting up the OpenGL engine..."
         glClearColor( *self.BACKGROUND )
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glEnable(GL_NORMALIZE)
         glEnable(GL_CULL_FACE)
+        glLight(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.01)
+        glLight(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.01)
+        glLight(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0)
         glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE)
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
-        glEnable(GL_COLOR_MATERIAL)
+        # glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+        # glEnable(GL_COLOR_MATERIAL)
+        print "  ...Done"
         
-        # Lastly let the scene set any OpenGL state it requires
+        print "  Starting scene's OpenGL init..."
         self.scene.gl_init()
+        print "  ...Done"
 
 
 
@@ -82,6 +89,7 @@ class View(object):
         params.extend(self.player.lookat)
         params.extend(self.player.viewup)
         gluLookAt(*params)
+        glLight(GL_LIGHT0, GL_POSITION, list(self.player.position) + [1])
         # glRotate(self.player.rotation[0], 0, 1, 0)
         # glRotate(self.player.rotation[1], 0, 1, 0)
         

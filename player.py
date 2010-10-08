@@ -10,9 +10,9 @@ from OpenGL.GLUT import *
 
 
 class Player(object):
-  def __init__(self, config):
-    self.position = Point3(100, 100, 0)
-    self.lookat = Point3(101, 100, 0)
+  def __init__(self, config, start_point):
+    self.position = start_point
+    self.lookat = start_point + Vector3(1, 0, 0)
     self.viewup = Point3(0, 1, 0)
     self.rotation = (0, 0)
     self.sensitivity = config['sensitivity']
@@ -57,13 +57,16 @@ class Player(object):
     effects like the position passing the lookat point
     """
 
-    movement = amount * (self.lookat - self.position)
+    movement = (self.lookat - self.position)
+    movement.dy = 0
+    movement = amount * unit(movement)
     self.position += movement
     self.lookat += movement
     glutPostRedisplay()
   
   def sideways(self, amount):
     movement = amount * unit((self.lookat - self.position).cross(Vector3(self.viewup)))
+    movement.dy = 0
     self.position += movement
     self.lookat += movement
     glutPostRedisplay()

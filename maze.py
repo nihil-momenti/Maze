@@ -21,6 +21,7 @@ def normal(center_point, clockwise, widdershins):
     for j in range(len(center_point[0])):
       norm = numpy.cross((widdershins - center_point)[i,j], (clockwise - center_point)[i,j])
       n[i,j] = norm / numpy.linalg.norm(norm)
+  # print n
   return n
 
 
@@ -69,11 +70,9 @@ class Cell(object):
     self.dist = dist
     self.walls = walls
     
-    
   def gl_init(self):
     self.listID = glGenLists(1)
     self.generate_list()
-    
     
   def generate_list(self):
     glNewList(self.listID, GL_COMPILE_AND_EXECUTE); glBegin(GL_TRIANGLES)
@@ -192,27 +191,36 @@ class Cell(object):
 # 2 - Floor
 class Maze(object):
   def __init__(self, config):
+    print "      Loading config..."
     self.size = config['size']
     self.scale = config['scale']
     self.y_scale = config['y_scale']
     num_runners = config['num_runners']
     dead_end_chance = config['dead_end_chance']
+    print "      ...Done"
     
-    self.startPoint = Point(random.randint(0, self.size - 1), random.randint(0, self.size - 1))
-    self.gen_maze(num_runners, dead_end_chance)
+    print "      Generating layout..."
+    self.start_index = Point(random.randint(0, self.size - 1), random.randint(0, self.size - 1))
+    self.gen_maze(num_runners, dead_end_chance, self.start_index)
+    print "      ...Done"
     
+    print "      Generating displacement..."
     disp_map = FractalMap(config['disp_map']['octaves'], config['disp_map']['persistence'])
     self.gen_cells(disp_map, config['disp_map']['res'], config['disp_map']['dist'])
+    print "      ...Done"
     
+    print "      Generating texture..."
     tex_map = FractalMap(config['tex_map']['octaves'], config['tex_map']['persistence'])
     self.tex_res = config['tex_map']['res']
-    self.gen_tex(tex_map, self.tex_res)
+    self.gen_tex(tex_map, self.tex_res, config['tex_map']['variability'])
+    print "      ...Done"
     
+    self.start_point = Point3((self.start_index.x - self.size / 2) * self.scale, 0.2 * self.scale * self.y_scale, (self.start_index.z - self.size / 2) * self.scale)
     
-  def gen_maze(self, num_runners, dead_end_chance):
+  def gen_maze(self, num_runners, dead_end_chance, start_point):
     self.map = numpy.zeros((self.size,self.size),numpy.int8)
-    self.map[self.startPoint.t()] = 2
-    runners = deque([self.startPoint])
+    self.map[start_point.t()] = 2
+    runners = deque([start_point])
     while (len(runners) > 0):
       current = runners.popleft()
       next = self.choose_direction(current)
@@ -225,8 +233,7 @@ class Maze(object):
         next = self.choose_direction(current)
       for point in self.neighbours(current):
         self.map[point.t()] = 1
-    self.draw()
-    
+    # self.draw()
     
   def gen_cells(self, disp_map, res, dist):
     self.cells = []
@@ -240,16 +247,16 @@ class Maze(object):
           if z == 0 or self.map[x,z-1] != 2:             walls.append('back')
           self.cells.append(Cell(x - self.size/2, z - self.size/2, self.scale, self.y_scale, self.size, disp_map, res, dist, walls))
     
-    
-  def gen_tex(self, tex_map, res):
-    self.texture = numpy.zeros((res,res,res,3),'ubyte')
-    brown = Vector3(101, 67, 33)
+  def gen_tex(self, tex_map, res, var):
+    self.texture = numpy.zeros((res,res,res,3),'single')
     for x in range(res):
       for y in range(res):
         for z in range(res):
-          value = int(tex_map[x,y,z] * 20)
-          self.texture[x,y,z] = list(Vector3(value, value, value) + brown)
-    
+          value = [max(0., min(1., tex_map[x,y,z,0] * var + .6)),
+                   max(0., min(1., tex_map[x,y,z,1] * var + .46)),
+                   max(0., min(1., tex_map[x,y,z,2] * var + .33))]
+          # print value
+          self.texture[x,y,z] = value
     
   def choose_direction(self, point):
     # Generate all neighbouring points
@@ -259,7 +266,6 @@ class Maze(object):
       return None
     else:
       return random.choice(list(n))
-    
     
   def neighbours(self, point):
     n = set((Point(point.x - 1, point.z),
@@ -275,7 +281,6 @@ class Maze(object):
     n -= specs
     return n
     
-    
   def draw(self):
     for j in range(self.size+1):
       print '#',
@@ -283,7 +288,7 @@ class Maze(object):
     for z in range(self.size):
       print '#',
       for x in range(self.size):
-        if x == self.startPoint.x and z == self.startPoint.z:
+        if x == self.start_index.x and z == self.start_index.z:
           print 'x',
         else:
           print ['?','#',' '][self.map[x,z]],
@@ -292,42 +297,23 @@ class Maze(object):
       print '#',
     print '#'
     
-    
   def gl_init(self):
+    print "    Initialising maze's OpenGL..."
+    print "      Generating walls..."
     [cell.gl_init() for cell in self.cells]
-    self.textureID = glGenTextures(1); glBindTexture(GL_TEXTURE_2D, self.textureID)
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, self.tex_res, self.tex_res, self.tex_res, 0, GL_RGB, GL_UNSIGNED_BYTE, self.texture)
+    print "      ...Done"
+    print "      Loading texture..."
+    self.textureID = glGenTextures(1); glBindTexture(GL_TEXTURE_3D, self.textureID)
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, self.tex_res, self.tex_res, self.tex_res, 0, GL_RGB, GL_FLOAT, self.texture)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE)
     glEnable(GL_TEXTURE_3D)
-    
-    
-  def generate_outer_walls(self, left, rite, roof, flor, back, ford):
-    glNormal( 1,  0,  0)
-    glVertex(rite, flor, back)
-    glVertex(rite, flor, ford)
-    glVertex(rite, roof, ford)
-    glVertex(rite, roof, back)
-    glNormal(-1,  0,  0)
-    glVertex(left, flor, ford)
-    glVertex(left, flor, back)
-    glVertex(left, roof, back)
-    glVertex(left, roof, ford)
-    glNormal( 0,  0,  1)
-    glVertex(rite, flor, ford)
-    glVertex(left, flor, ford)
-    glVertex(left, roof, ford)
-    glVertex(rite, roof, ford)
-    glNormal( 0,  0, -1)
-    glVertex(left, flor, back)
-    glVertex(rite, flor, back)
-    glVertex(rite, roof, back)
-    glVertex(left, roof, back)
-    
+    print "      ...Done"
+    print "    ...Done"
     
   def display(self):
-    glBindTexture(GL_TEXTURE_2D, self.textureID)
+    glBindTexture(GL_TEXTURE_3D, self.textureID)
     [cell.display() for cell in self.cells]
     

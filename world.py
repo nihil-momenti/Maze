@@ -7,9 +7,14 @@ from tex_plane import Plane
 
 class World(object):
   def __init__(self, config):
+    print "  Creating entities..."
+    print "    Creating maze..."
     maze = Maze(config['maze'])
+    print "    ...Done"
     #ground = Plane(config['ground'], self.heightmap)
     self.contents = set([maze])
+    print "  ...Done"
+    self.start_point = maze.start_point
   
   def gl_init(self):
     [thing.gl_init() for thing in self.contents]
