@@ -10,9 +10,9 @@ from OpenGL.GLUT import *
 
 
 class Player(object):
-  def __init__(self, heightmap, config):
+  def __init__(self, config):
     self.position = Point3(100, 100, 0)
-    self.lookat = self.position + unit((Point3(1, 0, 0) - self.position))
+    self.lookat = Point3(101, 100, 0)
     self.viewup = Point3(0, 1, 0)
     self.rotation = (0, 0)
     self.sensitivity = config['sensitivity']

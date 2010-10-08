@@ -16,7 +16,7 @@ except ImportError:
 
 config = load(file('world.config'))
 world       = World(config['world'])
-player      = Player(world.heightmap, config['player'])
+player      = Player(config['player'])
 view        = View(player, world, config['view'])
 controller  = Controller(player, world, view, config['controller'])
 controller.run()

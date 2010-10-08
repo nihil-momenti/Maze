@@ -4,11 +4,9 @@ from __future__ import division
 # from main import unload
 from maze import Maze
 from tex_plane import Plane
-from perlin import Perlin
 
 class World(object):
   def __init__(self, config):
-    self.heightmap = Perlin(config['octaves'], config['persistence'])
     maze = Maze(config['maze'])
     #ground = Plane(config['ground'], self.heightmap)
     self.contents = set([maze])
