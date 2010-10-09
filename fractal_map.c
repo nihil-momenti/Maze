@@ -145,6 +145,10 @@ static PyMemberDef FractalMap_members[] = {
   {NULL}  /* Sentinel */
 };
 
+static PyMappingMethods FractalMap_mappingMethods[] = {
+  {NULL, __getitem__, NULL}
+};
+
 static void
 FractalMap_dealloc(FractalMap* self) {
   free(self->perlins);
@@ -185,7 +189,7 @@ static PyTypeObject FractalMapType = {
   0,                         /*tp_repr*/
   0,                         /*tp_as_number*/
   0,                         /*tp_as_sequence*/
-  0,                         /*tp_as_mapping*/
+  FractalMap_mappingMethods,                         /*tp_as_mapping*/
   0,                         /*tp_hash */
   0,                         /*tp_call*/
   0,                         /*tp_str*/
@@ -216,7 +220,7 @@ static PyTypeObject FractalMapType = {
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
-initFractalMap(void) {
+initfractal_map(void) {
   PyObject* m;
 
   FractalMapType.tp_new = PyType_GenericNew;
@@ -226,7 +230,7 @@ initFractalMap(void) {
   m = Py_InitModule3("fractal_map", FractalMap_methods,"");
 
   Py_INCREF(&FractalMapType);
-  PyModule_AddObject(m, "Noddy", (PyObject *)&FractalMapType);
+  PyModule_AddObject(m, "FractalMap", (PyObject *)&FractalMapType);
 }
 
 
@@ -239,7 +243,7 @@ int main(int argc, char *argv[]) {
     Py_Initialize();
 
     /* Add a static module */
-    initFractalMap();
+    initfractal_map();
     
     return 0;
 }
