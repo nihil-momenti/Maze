@@ -84,8 +84,8 @@ class Cell(object):
     ford =  self.z * self.scale + self.scale / 2
     back =  self.z * self.scale - self.scale / 2
     
-    self.generate_wall(left, rite, flor, roof, back, ford, 1, 'forward')
-    self.generate_wall(left, rite, flor, roof, back, ford, 1, 'backward')
+    self.generate_wall(left, rite, flor, roof, back, ford, 1, 'forward') # floor
+    self.generate_wall(left, rite, flor, roof, back, ford, 1, 'backward') # roof
     for wall in self.walls:
       if   wall == 'right':   self.generate_wall(left, rite, flor, roof, back, ford, 0, 'forward')
       elif wall == 'left':    self.generate_wall(left, rite, flor, roof, back, ford, 0, 'backward')

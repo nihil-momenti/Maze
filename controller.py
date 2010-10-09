@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 from OpenGL.GL import *
@@ -36,7 +37,7 @@ class Controller(object):
       else:
         glutWarpPointer(*self.mouseInitialPos)
         glutSetCursor(GLUT_CURSOR_INHERIT)
-    elif button == GLUT_RIGHT_BUTTsON:
+    elif button == GLUT_RIGHT_BUTTON:
       self.player.attack()
 
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 import time
@@ -54,21 +55,15 @@ class Player(object):
   def twoD_facing(self):
     direction = self.lookat - self.position
     direction.dy = 0
-    return direction
+    return unit(direction)
   
   def offset(self):
     if self.third_person:
-      return Vector3(-20 * self.twoD_facing() + Vector3(0, 20, 0))
+      return Vector3(-100 * (self.lookat - self.position))
     else:
       return Vector3(0,0,0)
   
   def forward(self, amount):
-    """Move the position forward by the given amount
-
-    The lookat point is moved by the same amount to prevent silly
-    effects like the position passing the lookat point
-    """
-
     movement = amount * unit(self.twoD_facing())
     self.position += movement
     self.lookat += movement
@@ -87,20 +82,10 @@ class Player(object):
     glutPostRedisplay()
 
   def turn(self, rotation):
-    """Rotate the current view by the given angle around the y-axis.
-
-    This is done by rotating the lookat point around the eye point by
-    the given angle.
-    """
-
     (x, y, z) = self.lookat - self.position
     r = sqrt(x*x + y*y + z*z)
-    if self.third_person:
-      theta = max(0.01, min(pi - 0.01, acos(y / r) - self.sensitivity * rotation[1]))
-      phi = atan2(z, x) - self.sensitivity * rotation[0]
-    else:
-      theta = max(0.01, min(pi - 0.01, acos(y / r) + self.sensitivity * rotation[1]))
-      phi = atan2(z, x) + self.sensitivity * rotation[0]
+    theta = max(0.01, min(pi - 0.01, acos(y / r) + self.sensitivity * rotation[1]))
+    phi = atan2(z, x) + self.sensitivity * rotation[0]
     (x, y, z) = (r * sin(theta) * cos(phi), r * cos(theta), r * sin(theta) * sin(phi))
     self.lookat = self.position + Vector3(x, y, z)
     glutPostRedisplay()
@@ -110,57 +95,32 @@ class Player(object):
     
   def gl_init(self):
     None
-  
-  def innerArm(self):
-    """Draws the inner arm in its resting position, vertical with
-    centre of base at origin"""
-    glColor3f(1, 0, 0)
-    glPushMatrix()
-    glTranslatef(0, 1, 0)
-    glScalef(0.2, 2, 0.2)
-    glutSolidCube(1)
-    glPopMatrix()
-
-
-  def outerArm(self):
-    """Draws the outer arm in its resting position, vertical with
-    centre of base at origin"""
-    glColor3f(0, 1, 0)
-    glPushMatrix()
-    glTranslatef(0, 0.75, 0)
-    glScalef(0.1, 1.5, 0.1)
-    glutSolidCube(1)
-    glPopMatrix()
 
 
   def base(self):
-    """Draws the base in its rest position, sitting on the ground plane"""
     glPushMatrix()
     glColor3f(1,1,0)
-    glTranslatef(0, 0.5, 0)
+    glTranslatef(0, 0, 0)
+    glScale(20, 28, 20)
     glutSolidCube(1)
     glPopMatrix()
     
   
   def display(self):
+    glLight(GL_LIGHT0, GL_POSITION, list(self.position) + [1])
     glPushMatrix()
     glTranslate(*self.position)
-    glTranslate(0, -20, 0)
-    angle = asin(dot(self.twoD_facing(), Vector3(1, 0, 0)))
+    glTranslate(0, -1, 0)
+    facing = self.twoD_facing()
+    angle = -atan2(facing.dz, facing.dx)
+    print degrees(angle)
     glRotate(degrees(angle), 0, 1, 0)
     self.base()
-    glTranslate(0, 1, 0)
-    self.innerArm()
-    glTranslate(0, 2, 0)
-    self.outerArm()
     glPopMatrix()
   
   def switch_view(self):
     if self.third_person:
       self.third_person = False
-      # self.forward(20)
-      # self.up(-20)
     else:
       self.third_person = True
-      # self.forward(-20)
-      # self.up(20)
+    glutPostRedisplay()
