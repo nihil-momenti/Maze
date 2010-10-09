@@ -94,7 +94,13 @@ class Player(object):
     return None
     
   def gl_init(self):
-    None
+    glEnable(GL_LIGHT0)
+    glLight(GL_LIGHT0, GL_AMBIENT, (0.1, 0.1, 0.1, 1))
+    glLight(GL_LIGHT0, GL_DIFFUSE, (1, 0.89, 0.71, 1))
+    glLight(GL_LIGHT0, GL_SPECULAR, (1, 0.89, 0.71, 1))
+    glLight(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.6)
+    glLight(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.005)
+    glLight(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.00001)
 
 
   def base(self):

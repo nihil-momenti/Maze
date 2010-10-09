@@ -259,9 +259,9 @@ class Maze(object):
       for y in range(res):
         for z in range(res):
           v = tex_map[x,y,z]
-          value = [max(0., min(1., (1 + v * var) * .60)) * 255,
-                   max(0., min(1., (1 + v * var) * .46)) * 255,
-                   max(0., min(1., (1 + v * var) * .33)) * 255]
+          value = [max(0., min(1., (1. + v * var) * .60)),
+                   max(0., min(1., (1. + v * var) * .46)),
+                   max(0., min(1., (1. + v * var) * .33))]
           # print value
           self.texture[x,y,z] = value
     
@@ -317,10 +317,17 @@ class Maze(object):
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE)
     glEnable(GL_TEXTURE_3D)
+    
+    self.listID = glGenLists(1); glNewList(self.listID, GL_COMPILE_AND_EXECUTE)
+    glBindTexture(GL_TEXTURE_3D, self.textureID)
+    [cell.display() for cell in self.cells]
+    glBindTexture(GL_TEXTURE_3D, 0)
+    glEndList()
+    
+    
     print "      ...Done"
     print "    ...Done"
     
   def display(self):
-    glBindTexture(GL_TEXTURE_3D, self.textureID)
-    [cell.display() for cell in self.cells]
+    glCallList(self.listID)
     

@@ -14,14 +14,14 @@ class World(object):
     print "    ...Done"
     #ground = Plane(config['ground'], self.heightmap)
     self.contents = set([maze])
-    Special.init(config['specials'])
+    self.config = config
     for cell in maze.specials:
-      print cell
       self.contents.add(Special(cell))
     print "  ...Done"
     self.start_point = maze.start_point
   
   def gl_init(self):
+    Special.init()
     [thing.gl_init() for thing in self.contents]
     
   def display(self):
