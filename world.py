@@ -21,3 +21,6 @@ class World(object):
     
   def display(self):
     [thing.display() for thing in self.contents]
+  
+  def add(self, thing):
+    self.contents.add(thing)

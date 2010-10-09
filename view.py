@@ -85,7 +85,7 @@ class View(object):
         glMatrixMode( GL_MODELVIEW )
         glLoadIdentity()
         params = []
-        params.extend(self.player.position)
+        params.extend(self.player.position + self.player.offset())
         params.extend(self.player.lookat)
         params.extend(self.player.viewup)
         gluLookAt(*params)

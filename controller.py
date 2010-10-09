@@ -69,6 +69,8 @@ class Controller(object):
       self.player.move('BACK')
     elif key == 'd':
       self.player.move('RIGHT')
+    elif key == 'e':
+      self.player.switch_view()
    
   def keyboardUpFunc(self, key, x, y):
     if key == 'a':

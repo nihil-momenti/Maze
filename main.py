@@ -20,6 +20,7 @@ world       = World(config['world'])
 print "...Done"
 print "Loading player..."
 player      = Player(config['player'], world.start_point)
+world.add(player)
 print "...Done"
 print "Generating View..."
 view        = View(player, world, config['view'])
