@@ -112,7 +112,7 @@ static PyObject * value(PyObject *self, PyObject *args) {
   float x[6] = {FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX}; /* Currently max 6-dimensional values. */
   float output;
   
-  self = (FractalMap *)self
+  self = (FractalMap *)self;
   
   if (!PyArg_ParseTuple(args, "f|fffff", &x[0], &x[1], &x[2], &x[3], &x[4], &x[5]))
     return NULL;
@@ -128,12 +128,12 @@ static PyObject * value(PyObject *self, PyObject *args) {
   return Py_BuildValue("f", output);
 }
 
-static PyObject * __getitem__(FractalMap *self, PyObject *args) {
+static PyObject * __getitem__(PyObject *self, PyObject *args) {
     return value(self, args);
 }
 
 static PyMethodDef FractalMap_methods[] = {
-  {"value", value, METH_VARGS, ""},
+  {"value", value, METH_VARARGS, ""},
   {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
@@ -159,7 +159,7 @@ FractalMap_init(FractalMap *self, PyObject *args, PyObject *kwds) {
     return -1;
   
   tmp = self->perlins;
-  self->perlins = malloc(self->octaves * sizeof(Perlin))
+  self->perlins = malloc(self->octaves * sizeof(Perlin));
   if (!self->perlins)
     return -1;
   Py_INCREF(self->perlins);
