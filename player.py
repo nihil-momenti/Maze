@@ -90,8 +90,8 @@ class Player(object):
     self.lookat = self.position + Vector3(x, y, z)
     glutPostRedisplay()
   
-  def attack():
-    return null
+  def attack(self):
+    return None
     
   def gl_init(self):
     None
