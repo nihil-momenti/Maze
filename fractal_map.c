@@ -1,6 +1,7 @@
 #include <Python.h>
 #include "structmember.h"
 #include <stdlib.h>
+#include <float.h>
 
 static const double pi = 3.14159265358979323846264338327950288419716939937510;
 
@@ -19,26 +20,6 @@ typedef struct {
 } FractalMap;
 
 
-
-static PyObject * value(PyObject *self, PyObject *args) {
-  int x, y, z, a, b, c, i; /* Currently max 6-dimensional values. */
-  float output;
-  x = y = z = a = b = c = 0;
-  if (!PyArg_ParseTuple(args, "i|iiiii", &x, &y, &z, &a, &b, &c))
-    return NULL;
-  
-  
-  for (i = 0; i < self->octaves; i++) {
-    output += (self->persistence ** (self->octaves - i - 1)) * interpolated(x, size, &self->perlins[i]);
-    x /= 2; y /= 2; z /= 2; a /= 2; b /= 2; c /= 3;
-  }
-  
-  return Py_BuildValue("f", output);
-}
-
-static PyObject * __getitem__(PyObject *self, PyObject *args) {
-    return value(self, args);
-}
 
 Perlin new_perlin() {
   Perlin perlin = {
@@ -59,7 +40,7 @@ static float noise(int *x, int size, Perlin *settings) {
       n += x[i] * settings->small[i];
     }
     n = (n<<13) ^ n;
-    return ( 1.0 - ( (n * (n * n * settings->big1 + settings->big2) + settings->big3) & 0x7fffffff) / 1073741824.0)
+    return ( 1.0 - ( (n * (n * n * settings->big1 + settings->big2) + settings->big3) & 0x7fffffff) / 1073741824.0);
   }
 
 static float smooth(int *x, int size, Perlin *settings) {
@@ -108,9 +89,12 @@ static float int_f(int *y, int *x, int *fx, int *cx, int size, int depth, Perlin
 
 static float interpolated(int *x, int size, Perlin *settings) {
   int *fx,*cx, *y, i;
+  float value;
+  
   fx = malloc(size * sizeof(int));
   cx = malloc(size * sizeof(int));
   y = malloc(size * sizeof(int));
+  
   if (! (y && fx && cx)) {
     // Error
   }
@@ -121,6 +105,28 @@ static float interpolated(int *x, int size, Perlin *settings) {
   value = int_f(y, x, fx, cx, size, 0, settings);
   free(fx); free(cx); free(y);
   return value;
+}
+
+static PyObject * value(FractalMap *self, PyObject *args) {
+  int i, j;
+  float x[6] = {FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX}; /* Currently max 6-dimensional values. */
+  float output;
+  if (!PyArg_ParseTuple(args, "f|fffff", &x[0], &x[1], &x[2], &x[3], &x[4], &x[5]))
+    return NULL;
+  
+  for (i = 5; i >= 0; i--) if (x[i] < FLT_MAX) { size = i + 1; break; }
+  
+  
+  for (i = 0; i < self->octaves; i++) {
+    output += (self->persistence ** (self->octaves - i - 1)) * interpolated(x, size, &self->perlins[i]);
+    for (j = 0; j < size; j++) { x[j] /= 2; }
+  }
+  
+  return Py_BuildValue("f", output);
+}
+
+static PyObject * __getitem__(FractalMap *self, PyObject *args) {
+    return value(self, args);
 }
 
 static PyMethodDef FractalMap_methods[] = {
@@ -137,7 +143,7 @@ static PyMemberDef FractalMap_members[] = {
 static void
 FractalMap_dealloc(FractalMap* self)
 {
-  Py_XDECREF(self->perlins);
+  free(self->perlins);
   self->ob_type->tp_free((PyObject*)self);
 }
 
