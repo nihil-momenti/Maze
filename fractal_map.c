@@ -77,7 +77,7 @@ static float smooth(int *x, int size, Perlin *settings) {
     return value;
   }
 
-static float int_f(int *y, int *x, int *fx, int *cx, int size, int depth, Perlin *settings) {
+static float int_f(int *y, float *x, int *fx, int *cx, int size, int depth, Perlin *settings) {
   float x1, x2, f;
   if (size - depth == 0)
     return smooth(y, size, settings);
@@ -87,7 +87,7 @@ static float int_f(int *y, int *x, int *fx, int *cx, int size, int depth, Perlin
   return x1 * (1 - f) + x2 * f;
 }
 
-static float interpolated(int *x, int size, Perlin *settings) {
+static float interpolated(float *x, int size, Perlin *settings) {
   int *fx,*cx, *y, i;
   float value;
   
@@ -107,10 +107,13 @@ static float interpolated(int *x, int size, Perlin *settings) {
   return value;
 }
 
-static PyObject * value(FractalMap *self, PyObject *args) {
-  int i, j;
+static PyObject * value(PyObject *self, PyObject *args) {
+  int i, j, size;
   float x[6] = {FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX}; /* Currently max 6-dimensional values. */
   float output;
+  
+  self = (FractalMap *)self
+  
   if (!PyArg_ParseTuple(args, "f|fffff", &x[0], &x[1], &x[2], &x[3], &x[4], &x[5]))
     return NULL;
   
@@ -118,7 +121,7 @@ static PyObject * value(FractalMap *self, PyObject *args) {
   
   
   for (i = 0; i < self->octaves; i++) {
-    output += (self->persistence ** (self->octaves - i - 1)) * interpolated(x, size, &self->perlins[i]);
+    output += pow(self->persistence, (self->octaves - i - 1)) * interpolated(x, size, &self->perlins[i]);
     for (j = 0; j < size; j++) { x[j] /= 2; }
   }
   
@@ -141,15 +144,14 @@ static PyMemberDef FractalMap_members[] = {
 };
 
 static void
-FractalMap_dealloc(FractalMap* self)
-{
+FractalMap_dealloc(FractalMap* self) {
+  Py_XDECREF(self->perlins);
   free(self->perlins);
   self->ob_type->tp_free((PyObject*)self);
 }
 
 static int
-FractalMap_init(FractalMap *self, PyObject *args, PyObject *kwds)
-{
+FractalMap_init(FractalMap *self, PyObject *args, PyObject *kwds) {
   int i;
   Perlin* tmp;
 
@@ -157,7 +159,8 @@ FractalMap_init(FractalMap *self, PyObject *args, PyObject *kwds)
     return -1;
   
   tmp = self->perlins;
-  if (! self->perlins = malloc(self->octaves * sizeof(Perlin)))
+  self->perlins = malloc(self->octaves * sizeof(Perlin))
+  if (!self->perlins)
     return -1;
   Py_INCREF(self->perlins);
   Py_XDECREF(tmp);
