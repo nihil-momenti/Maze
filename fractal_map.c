@@ -18,110 +18,6 @@ typedef struct {
 
 
 
-
-
-static void
-FractalMap_dealloc(FractalMap* self)
-{
-  self->ob_type->tp_free((PyObject*)self);
-}
-
-static int
-FractalMap_init(Noddy *self, PyObject *args, PyObject *kwds)
-{
-  int i;
-  Perlin* perlin;
-
-  if (! PyArg_ParseTuple(args, "if", &self->octaves, &self->persistence))
-    return -1;
-  
-  tmp = self->perlins;
-  if (! self->perlins = malloc(self->octaves * sizeof(Perlin)))
-    return -1;
-  Py_INCREF(self->perlins);
-  Py_XDECREF(tmp);
-  
-  for (i = 0; i < self->octaves; i++){
-    self->perlins[i] = new_perlin();
-  }
-  
-  return 0;
-}
-
-static PyMethodDef FractalMap_methods[] = {
-  {"value", value, METH_VARGS, ""},
-  {NULL, NULL, 0, NULL} /* Sentinel */
-};
-
-static PyMemberDef FractalMap_members[] = {
-  {"octaves", T_INT, offsetof(Noddy, octaves), 0, "number of octaves"},
-  {"persistence", T_FLOAT, offsetof(Noddy, persistence), 0, "persistence"},
-  {NULL}  /* Sentinel */
-}
-
-
-static PyTypeObject FractalMapType = {
-  PyObject_HEAD_INIT(NULL)
-  0,                         /*ob_size*/
-  "fractal_map.FractalMap",             /*tp_name*/
-  sizeof(FractalMap), /*tp_basicsize*/
-  0,                         /*tp_itemsize*/
-  (destructor)FractalMap_dealloc,                         /*tp_dealloc*/
-  0,                         /*tp_print*/
-  0,                         /*tp_getattr*/
-  0,                         /*tp_setattr*/
-  0,                         /*tp_compare*/
-  0,                         /*tp_repr*/
-  0,                         /*tp_as_number*/
-  0,                         /*tp_as_sequence*/
-  0,                         /*tp_as_mapping*/
-  0,                         /*tp_hash */
-  0,                         /*tp_call*/
-  0,                         /*tp_str*/
-  0,                         /*tp_getattro*/
-  0,                         /*tp_setattro*/
-  0,                         /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-  "Fractal Map",           /* tp_doc */
-  0,                   /* tp_traverse */
-  0,                 /* tp_clear */
-  0,                 /* tp_richcompare */
-  0,                     /* tp_weaklistoffset */
-  0,                 /* tp_iter */
-  0,                 /* tp_iternext */
-  FractalMap_methods,             /* tp_methods */
-  FractalMap_members,             /* tp_members */
-  0,                         /* tp_getset */
-  0,                         /* tp_base */
-  0,                         /* tp_dict */
-  0,                         /* tp_descr_get */
-  0,                         /* tp_descr_set */
-  0,                         /* tp_dictoffset */
-  (initproc)FractalMap_init,      /* tp_init */
-  0,                         /* tp_alloc */
-};
-
-#ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
-#define PyMODINIT_FUNC void
-#endif
-PyMODINIT_FUNC
-initFractalMap(void) {
-  PyObject* m;
-
-  FractalMapType.tp_new = PyType_GenericNew;
-  if (PyType_Ready(&FractalMapType) < 0)
-      return;
-
-  m = Py_InitModule3("fractal_map", FractalMapMethods,"");
-
-  Py_INCREF(&FractalMapType);
-  PyModule_AddObject(m, "Noddy", (PyObject *)&FractalMapType);
-}
-
-
-
-
-
 static PyObject * __getitem__(PyObject *self, PyObject *args) {
     return value(self, args);
 }
@@ -135,7 +31,7 @@ static PyObject * value(PyObject *self, PyObject *args) {
   
   
   for octave in range(self.octaves):
-    output += (self->persistence ** (self->octaves - octave - 1)) * value(x, size, &self->perlins[octave])
+    output += (self->persistence ** (self->octaves - octave - 1)) * interpolated(x, size, &self->perlins[octave])
     x /= 2; y /= 2; z /= 2; a /= 2; b /= 2; c /= 3;
   
   return Py_BuildValue("f", output)
@@ -151,7 +47,7 @@ Perlin new_perlin() {
   return perlin;
 }
   
-static float value(int *x, int size, Perlin *settings) {
+static float interpolated(int *x, int size, Perlin *settings) {
   int *fx,*cx, *y;
   fx = malloc(size * sizeof(int));
   cx = malloc(size * sizeof(int));
@@ -223,6 +119,107 @@ static float noise(int *x, int size, Perlin *settings) {
     n = (n<<13) ^ n;
     return ( 1.0 - ( (n * (n * n * settings->big1 + settings->big2) + settings->big3) & 0x7fffffff) / 1073741824.0)
   }
+
+  
+static PyMethodDef FractalMap_methods[] = {
+  {"value", value, METH_VARGS, ""},
+  {NULL, NULL, 0, NULL} /* Sentinel */
+};
+
+static PyMemberDef FractalMap_members[] = {
+  {"octaves", T_INT, offsetof(FractalMap, octaves), 0, "number of octaves"},
+  {"persistence", T_FLOAT, offsetof(FractalMap, persistence), 0, "persistence"},
+  {NULL}  /* Sentinel */
+};
+
+static void
+FractalMap_dealloc(FractalMap* self)
+{
+  self->ob_type->tp_free((PyObject*)self);
+}
+
+static int
+FractalMap_init(FractalMap *self, PyObject *args, PyObject *kwds)
+{
+  int i;
+  Perlin* perlin;
+
+  if (! PyArg_ParseTuple(args, "if", &self->octaves, &self->persistence))
+    return -1;
+  
+  tmp = self->perlins;
+  if (! self->perlins = malloc(self->octaves * sizeof(Perlin)))
+    return -1;
+  Py_INCREF(self->perlins);
+  Py_XDECREF(tmp);
+  
+  for (i = 0; i < self->octaves; i++){
+    self->perlins[i] = new_perlin();
+  }
+  
+  return 0;
+}
+
+
+
+static PyTypeObject FractalMapType = {
+  PyObject_HEAD_INIT(NULL)
+  0,                         /*ob_size*/
+  "fractal_map.FractalMap",             /*tp_name*/
+  sizeof(FractalMap), /*tp_basicsize*/
+  0,                         /*tp_itemsize*/
+  (destructor)FractalMap_dealloc,                         /*tp_dealloc*/
+  0,                         /*tp_print*/
+  0,                         /*tp_getattr*/
+  0,                         /*tp_setattr*/
+  0,                         /*tp_compare*/
+  0,                         /*tp_repr*/
+  0,                         /*tp_as_number*/
+  0,                         /*tp_as_sequence*/
+  0,                         /*tp_as_mapping*/
+  0,                         /*tp_hash */
+  0,                         /*tp_call*/
+  0,                         /*tp_str*/
+  0,                         /*tp_getattro*/
+  0,                         /*tp_setattro*/
+  0,                         /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+  "Fractal Map",           /* tp_doc */
+  0,                   /* tp_traverse */
+  0,                 /* tp_clear */
+  0,                 /* tp_richcompare */
+  0,                     /* tp_weaklistoffset */
+  0,                 /* tp_iter */
+  0,                 /* tp_iternext */
+  FractalMap_methods,             /* tp_methods */
+  FractalMap_members,             /* tp_members */
+  0,                         /* tp_getset */
+  0,                         /* tp_base */
+  0,                         /* tp_dict */
+  0,                         /* tp_descr_get */
+  0,                         /* tp_descr_set */
+  0,                         /* tp_dictoffset */
+  (initproc)FractalMap_init,      /* tp_init */
+  0,                         /* tp_alloc */
+};
+
+#ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
+#define PyMODINIT_FUNC void
+#endif
+PyMODINIT_FUNC
+initFractalMap(void) {
+  PyObject* m;
+
+  FractalMapType.tp_new = PyType_GenericNew;
+  if (PyType_Ready(&FractalMapType) < 0)
+      return;
+
+  m = Py_InitModule3("fractal_map", FractalMapMethods,"");
+
+  Py_INCREF(&FractalMapType);
+  PyModule_AddObject(m, "Noddy", (PyObject *)&FractalMapType);
+}
+
 
 
 int main(int argc, char *argv[]) {
