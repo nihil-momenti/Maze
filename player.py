@@ -113,7 +113,6 @@ class Player(object):
     glTranslate(0, -1, 0)
     facing = self.twoD_facing()
     angle = -atan2(facing.dz, facing.dx)
-    print degrees(angle)
     glRotate(degrees(angle), 0, 1, 0)
     self.base()
     glPopMatrix()

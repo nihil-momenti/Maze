@@ -3,6 +3,7 @@ from __future__ import division
 
 # from main import unload
 from maze import Maze
+from special import Special
 from tex_plane import Plane
 
 class World(object):
@@ -13,6 +14,9 @@ class World(object):
     print "    ...Done"
     #ground = Plane(config['ground'], self.heightmap)
     self.contents = set([maze])
+    for cell in maze.specials:
+      print cell
+      self.contents.add(Special(cell))
     print "  ...Done"
     self.start_point = maze.start_point
   

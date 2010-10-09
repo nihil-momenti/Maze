@@ -186,22 +186,25 @@ class Cell(object):
     glCallList(self.listID)
   
   
+
+class Maze(object):
 # 0 - Undefined square
 # 1 - Wall
 # 2 - Floor
-class Maze(object):
+# 3 - Special Floor
   def __init__(self, config):
     print "      Loading config..."
     self.size = config['size']
     self.scale = config['scale']
     self.y_scale = config['y_scale']
     num_runners = config['num_runners']
+    special_chance = config['special_chance']
     dead_end_chance = config['dead_end_chance']
     print "      ...Done"
     
     print "      Generating layout..."
     self.start_index = Point(random.randint(0, self.size - 1), random.randint(0, self.size - 1))
-    self.gen_maze(num_runners, dead_end_chance, self.start_index)
+    self.gen_maze(num_runners, special_chance, dead_end_chance, self.start_index)
     print "      ...Done"
     
     print "      Generating displacement..."
@@ -217,8 +220,9 @@ class Maze(object):
     
     self.start_point = Point3((self.start_index.x - self.size / 2) * self.scale, 0.2 * self.scale * self.y_scale, (self.start_index.z - self.size / 2) * self.scale)
     
-  def gen_maze(self, num_runners, dead_end_chance, start_point):
+  def gen_maze(self, num_runners, special_chance, dead_end_chance, start_point):
     self.map = numpy.zeros((self.size,self.size),numpy.int8)
+    self.specials = set()
     self.map[start_point.t()] = 2
     runners = deque([start_point])
     while (len(runners) > 0):
@@ -227,6 +231,8 @@ class Maze(object):
       while len(runners) < num_runners and next is not None:
         if random.random() < dead_end_chance:
           self.map[next.t()] = 1
+          if random.random() < special_chance:
+            self.specials.add(((current + Point(-self.size/2,-self.size/2)) * self.scale).t())
         else:
           self.map[next.t()] = 2
           runners.append(next)
@@ -239,12 +245,12 @@ class Maze(object):
     self.cells = []
     for x in range(self.size):
       for z in range(self.size):
-        if self.map[x, z] == 2:
+        if self.map[x, z] in (2, 3):
           walls = []
-          if x == self.size - 1 or self.map[x+1,z] != 2: walls.append('right')
-          if x == 0 or self.map[x-1,z] != 2:             walls.append('left')
-          if z == self.size - 1 or self.map[x,z+1] != 2: walls.append('forward')
-          if z == 0 or self.map[x,z-1] != 2:             walls.append('back')
+          if x == self.size - 1 or self.map[x+1,z] not in (2, 3): walls.append('right')
+          if x == 0 or self.map[x-1,z] not in (2, 3):             walls.append('left')
+          if z == self.size - 1 or self.map[x,z+1] not in (2, 3): walls.append('forward')
+          if z == 0 or self.map[x,z-1] not in (2, 3):             walls.append('back')
           self.cells.append(Cell(x - self.size/2, z - self.size/2, self.scale, self.y_scale, self.size, disp_map, res, dist, walls))
     
   def gen_tex(self, tex_map, res, var):
