@@ -14,7 +14,7 @@ class Special(object):
     for model in config['models']:
       cls.models.append(Model(model))
     
-  def __init__(self, location, config):
+  def __init__(self, location):
     self.x = location[0]
     self.z = location[1]
 

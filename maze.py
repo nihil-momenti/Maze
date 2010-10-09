@@ -258,9 +258,10 @@ class Maze(object):
     for x in range(res):
       for y in range(res):
         for z in range(res):
-          value = [max(0., min(1., tex_map[x,y,z,0] * var + .6)),
-                   max(0., min(1., tex_map[x,y,z,1] * var + .46)),
-                   max(0., min(1., tex_map[x,y,z,2] * var + .33))]
+          v = tex_map[x,y,z]
+          value = [max(0., min(1., (1 + v * var) * .60)) * 255,
+                   max(0., min(1., (1 + v * var) * .46)) * 255,
+                   max(0., min(1., (1 + v * var) * .33)) * 255]
           # print value
           self.texture[x,y,z] = value
     

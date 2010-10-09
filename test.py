@@ -1,22 +1,23 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 from maze2 import Maze
 from fractal_map import FractalMap
 from PIL import Image
 from math import cos, pi, sqrt
+import numpy
 # m = Maze(20, 40, 5, 0.6)
 # m.p()
 
-size = 1024
-map = FractalMap(8, 0.95)
-for i in range(1000000):
-  for j in range(1000000):
-    for k in range(1000000):
-      for l in range(1000000):
-        if abs(map[i,j,k,l]) > 1: print map[i,j,k,l] 
-# data = [256 * map.value(6, x, y) + 128 for x in range(-size//2,size//2) for y in range(-size//2,size//2)]
-# data = [128 * map.value(1, x, y) + 171 * cos(pi / 118 * sqrt((x - size/2) ** 2 + (y - size/2) ** 2)) for x in range(size) for y in range(size)]
-# colour = [(0,datum,0) if datum > 128 else (0,0,256-datum) for datum in data]
-# im = Image.new("RGB", (size,size))
-# im.putdata(colour)
-# im.save("test.bmp")
+size = 100
+tex_map = FractalMap(8, 0.95)
+texture = numpy.zeros((size,size,3),'byte')
+for x in range(size):
+  for y in range(size):
+    v = tex_map[x,y]
+    value = [max(0., min(1., (1 + v * .1) * .60)) * 255,
+             max(0., min(1., (1 + v * .1) * .46)) * 255,
+             max(0., min(1., (1 + v * .1) * .33)) * 255]
+    texture[x,y] = value
+im = Image.fromarray(texture)
+im.save('temp.bmp')

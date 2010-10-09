@@ -14,6 +14,7 @@ class World(object):
     print "    ...Done"
     #ground = Plane(config['ground'], self.heightmap)
     self.contents = set([maze])
+    Special.init(config['specials'])
     for cell in maze.specials:
       print cell
       self.contents.add(Special(cell))

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """The View class for 363 lab 9.
 
 A further development of the view class from lab 8. This version allows the
@@ -89,7 +90,6 @@ class View(object):
         params.extend(self.player.lookat)
         params.extend(self.player.viewup)
         gluLookAt(*params)
-        glLight(GL_LIGHT0, GL_POSITION, list(self.player.position) + [1])
         # glRotate(self.player.rotation[0], 0, 1, 0)
         # glRotate(self.player.rotation[1], 0, 1, 0)
         

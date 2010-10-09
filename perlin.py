@@ -4,8 +4,6 @@ from __future__ import division
 import random, numpy
 from math import floor, ceil, cos, pi
 
-from randomiser import Randomiser
-
 class Perlin(object):
   small = numpy.asarray((1, 11, 29, 43, 67, 89, 17, 23, 29),'int64')
   
@@ -13,7 +11,6 @@ class Perlin(object):
       self.big1 = random.randint(10000,20000)
       self.big2 = random.randint(750000,1000000)
       self.big3 = random.randint(1000000000,1500000000)
-      Randomiser.seed += 1
   
   def __getitem__(self, key):
     return self.value(*key)
