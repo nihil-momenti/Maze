@@ -107,12 +107,13 @@ static float interpolated(float *x, int size, Perlin *settings) {
   return value;
 }
 
-static PyObject * value(PyObject *self, PyObject *args) {
+static PyObject * value(PyObject *self1, PyObject *args) {
   int i, j, size;
   float x[6] = {FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX}; /* Currently max 6-dimensional values. */
   float output;
+  FractalMap *self;
   
-  self = (FractalMap *)self;
+  self = (FractalMap *)self1;
   
   if (!PyArg_ParseTuple(args, "f|fffff", &x[0], &x[1], &x[2], &x[3], &x[4], &x[5]))
     return NULL;
