@@ -19,6 +19,7 @@ class Special(object):
   
   @classmethod
   def init(cls):
+    cls.num = cls.num % 7
     cls.models = []
     
     models = [
@@ -50,7 +51,6 @@ class Special(object):
     if len(Special.models) > 0:
       model = random.choice(Special.models); Special.models.remove(model)
       model[1](); model[0].display()
-      
     else:
       glutSolidCube(10)
     glPopMatrix()
