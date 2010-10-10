@@ -231,11 +231,10 @@ class Maze(object):
       while len(runners) < num_runners and next is not None:
         if random.random() < dead_end_chance:
           self.map[next.t()] = 1
-          if random.random() < special_chance and len(self.neighbours(current)) > 0:
-            random_wall = self.neighbours(current).pop()
+          if random.random() < special_chance:
             self.specials.add((
               ((current + Point(-self.size/2,-self.size/2)) * self.scale).t(),
-              ((random_wall + Point(-self.size/2,-self.size/2)) * self.scale).t()
+              ((next + Point(-self.size/2,-self.size/2)) * self.scale).t()
             ))
         else:
           self.map[next.t()] = 2
