@@ -5,7 +5,7 @@ from fractal_map import FractalMap
 from PIL import Image
 import numpy, time
 
-size = 1000
+size = 100
 texture = numpy.zeros((size,size,3),'byte')
 
 start = time.time()
