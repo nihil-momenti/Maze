@@ -22,11 +22,12 @@ typedef struct {
 
 
 Perlin new_perlin() {
+  srand(time(NULL));
   Perlin perlin = {
     {1, 11, 29, 43, 67, 89},
-    rand() % 10000 + 10000,
-    rand() % 250000 + 750000,
-    rand() % 500000000 + 1000000000,
+    (rand() % 32767) + 10000, // 32 767 - 42 767
+    (rand() % 32767) * (rand() % 8) + 750000, // 262 136 - 1 012 136
+    (rand() % 32767) * (rand() % 15259) + 1000000000, // 499 991 653 - 1 499 991 653
   };
   return perlin;
 }
@@ -58,7 +59,7 @@ static float smooth(int *x, int size, Perlin *settings) {
       x[0] -= 1;
       x[1] -= 1; value += noise(x, 2, settings);
       x[1] += 2; value += noise(x, 2, settings);
-      x[0] -= 1;
+      x[1] -= 1;
       value *= 3;
       x[1] -= 1;
       x[0] -= 1; value += noise(x, 2, settings);
@@ -81,9 +82,11 @@ static float int_f(int *y, float *x, int *fx, int *cx, int size, int depth, Perl
   float x1, x2, f;
   if (size - depth == 0)
     return smooth(y, size, settings);
-  y[depth] = fx[depth]; x1 = int_f(y, x, fx, cx, size, depth + 1, settings);
-  y[depth] = cx[depth]; x2 = int_f(y, x, fx, cx, size, depth + 1, settings);
-  f = (1 - cos(pi*(x[0] - fx[0]))) / 2;
+  y[depth] = fx[depth];
+  x1 = int_f(y, x, fx, cx, size, depth + 1, settings);
+  y[depth] = cx[depth];
+  x2 = int_f(y, x, fx, cx, size, depth + 1, settings);
+  f = (1 - cos(pi*(x[depth] - fx[depth]))) / 2;
   return x1 * (1 - f) + x2 * f;
 }
 
