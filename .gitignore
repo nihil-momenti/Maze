@@ -1,2 +1,5 @@
 *.pyc
 *.bmp
+fractal_test/extension/build
+*.so
+
