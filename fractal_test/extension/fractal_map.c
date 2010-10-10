@@ -59,7 +59,7 @@ static float smooth(int *x, int size, Perlin *settings) {
       x[0] -= 1;
       x[1] -= 1; value += noise(x, 2, settings);
       x[1] += 2; value += noise(x, 2, settings);
-      x[0] -= 1;
+      x[1] -= 1;
       value *= 3;
       x[1] -= 1;
       x[0] -= 1; value += noise(x, 2, settings);
