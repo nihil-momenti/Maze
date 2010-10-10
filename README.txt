@@ -17,3 +17,7 @@ References:
 
   Models taken from http://e2-productions.com/repository/
 
+TODO:
+  Animate fire in torch
+  Create robot model
+  Add third animated textured special object

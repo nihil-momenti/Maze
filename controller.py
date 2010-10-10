@@ -62,16 +62,30 @@ class Controller(object):
       glutPostRedisplay()
    
   def keyboardFunc(self, key, x, y):
-    if key == 'a':
+    if key in ['a', 'A']:
       self.player.move('LEFT')
-    elif key == 'w':
+    elif key in ['w', 'W']:
       self.player.move('FORWARD')
-    elif key == 's':
+    elif key in ['s', 'S']:
       self.player.move('BACK')
-    elif key == 'd':
+    elif key in ['d', 'D']:
       self.player.move('RIGHT')
-    elif key == 'e':
-      self.player.switch_view()
+    elif key == ' ':
+      self.player.move('UP')
+    elif key in ['z', 'Z']:
+      self.player.move('DOWN')
+    elif key in ['e', 'E']:
+      self.player.switch_third_person()
+    elif key in ['q', 'Q']:
+      self.player.switch_viewpoint()
+    elif key in ['j', 'J']:
+      self.player.move('ROBOT_LEFT')
+    elif key in ['i', 'I']:
+      self.player.move('ROBOT_FORWARD')
+    elif key in ['k', 'K']:
+      self.player.move('ROBOT_BACK')
+    elif key in ['l', 'L']:
+      self.player.move('ROBOT_RIGHT')
    
   def keyboardUpFunc(self, key, x, y):
     if key == 'a':
@@ -82,8 +96,21 @@ class Controller(object):
       self.player.stop('BACK')
     elif key == 'd':
       self.player.stop('RIGHT')
+    elif key == ' ':
+      self.player.stop('UP')
+    elif key in ['z', 'Z']:
+      self.player.stop('DOWN')
+    elif key in ['j', 'J']:
+      self.player.stop('ROBOT_LEFT')
+    elif key in ['i', 'I']:
+      self.player.stop('ROBOT_FORWARD')
+    elif key in ['k', 'K']:
+      self.player.stop('ROBOT_BACK')
+    elif key in ['l', 'L']:
+      self.player.stop('ROBOT_RIGHT')
 
           
   def run(self):
     """Start the app (just runs the GLUT main loop)"""
+    glutPostRedisplay()
     glutMainLoop()
