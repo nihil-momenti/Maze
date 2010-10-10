@@ -231,8 +231,12 @@ class Maze(object):
       while len(runners) < num_runners and next is not None:
         if random.random() < dead_end_chance:
           self.map[next.t()] = 1
-          if random.random() < special_chance:
-            self.specials.add(((current + Point(-self.size/2,-self.size/2)) * self.scale).t())
+          if random.random() < special_chance and len(self.neighbours(current)) > 0:
+            random_wall = self.neighbours(current).pop()
+            self.specials.add((
+              ((current + Point(-self.size/2,-self.size/2)) * self.scale).t(),
+              ((random_wall + Point(-self.size/2,-self.size/2)) * self.scale).t()
+            ))
         else:
           self.map[next.t()] = 2
           runners.append(next)
@@ -319,7 +323,10 @@ class Maze(object):
     glEnable(GL_TEXTURE_3D)
     
     self.listID = glGenLists(1); glNewList(self.listID, GL_COMPILE_AND_EXECUTE)
-    glBindTexture(GL_TEXTURE_3D, self.textureID)
+    glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT,   (0.2,0.2,0.2,1))
+    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE,   (0.8,0.8,0.8,1))
+    glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR,  (0,0,0,1))
+    glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, 0)
     [cell.display() for cell in self.cells]
     glBindTexture(GL_TEXTURE_3D, 0)
     glEndList()
@@ -329,5 +336,6 @@ class Maze(object):
     print "    ...Done"
     
   def display(self):
+    glBindTexture(GL_TEXTURE_3D, self.textureID)
     glCallList(self.listID)
     
