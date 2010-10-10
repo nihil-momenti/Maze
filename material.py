@@ -35,16 +35,16 @@ class Material(object):
         elif chunks[0] == 'Kd':        self.Kd        = decodeK(chunks)
         elif chunks[0] == 'Ks':        self.Ks        = decodeK(chunks)
         elif chunks[0] == 'Tf':        self.Tf        = decodeK(chunks)
-        elif chunks[0] == 'Ns':        self.Ns        =   float(chunks[1])
+        elif chunks[0] == 'Ns':        self.Ns        =   float(chunks[1]) / 1000 * 128
         elif chunks[0] == 'Ni':        self.Ni        =   float(chunks[1])
         elif chunks[0] == 'illum':     self.illum     =     int(chunks[1])
         elif chunks[0] == 'sharpness': self.sharpness =     int(chunks[1])
     
     self.listID = glGenLists(1); glNewList(self.listID, GL_COMPILE_AND_EXECUTE)
     
-    glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT,   self.Ka)
-    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE,   self.Kd)
-    glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR,  self.Ks) 
+    glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT,   self.Ka + [self.d[1]])
+    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE,   self.Kd + [self.d[1]])
+    glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR,  self.Ks + [self.d[1]])
     glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, self.Ns) 
     
     glEndList()
