@@ -16,7 +16,7 @@ class World(object):
     self.contents = set([maze])
     self.config = config
     for cell in maze.specials:
-      self.contents.add(Special(cell))
+      self.contents.add(Special(*cell))
     print "  ...Done"
     self.start_point = maze.start_point
   
