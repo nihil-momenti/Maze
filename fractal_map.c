@@ -6,7 +6,7 @@
 static const double pi = 3.14159265358979323846264338327950288419716939937510;
 
 typedef struct {
-  int small[6];
+  int small[10];
   int big1;
   int big2;
   int big3;
@@ -22,19 +22,23 @@ typedef struct {
 
 
 Perlin new_perlin() {
-  srand(time(NULL));
-  Perlin perlin = {
-    {1, 11, 29, 43, 67, 89},
-    (rand() % 32767) + 10000, // 32 767 - 42 767
-    (rand() % 32767) * (rand() % 8) + 750000, // 262 136 - 1 012 136
-    (rand() % 32767) * (rand() % 15259) + 1000000000, // 499 991 653 - 1 499 991 653
-  };
+  Perlin perlin;
+  int i;
+  int smalls[] = {547, 557, 563, 569, 571, 577, 587, 593, 599, 601};
+
+  srand((unsigned int)time(NULL));
+  for (i = 0; i < 10; i++){
+    perlin.small[i] = smalls[i];
+  }
+  perlin.big1 = (rand() % 32767) + 10000; // 32 767 - 42 767
+  perlin.big2 = (rand() % 32767) * (rand() % 8) + 750000; // 262 136 - 1 012 136
+  perlin.big3 = (rand() % 32767) * (rand() % 15259) + 1000000000; // 499 991 653 - 1 499 991 653
   return perlin;
 }
 
 // Crap randomiser, need to find something with less repetition
 // Works okay for fractal generation though
-static float noise(int *x, int size, Perlin *settings) {
+static double noise(int *x, int size, Perlin *settings) {
     int i;
     int n = 0;
     for (i = 0; i < size; i++) {
@@ -44,8 +48,8 @@ static float noise(int *x, int size, Perlin *settings) {
     return ( 1.0 - ( (n * (n * n * settings->big1 + settings->big2) + settings->big3) & 0x7fffffff) / 1073741824.0);
   }
 
-static float smooth(int *x, int size, Perlin *settings) {
-    float value = 0.0;
+static double smooth(int *x, int size, Perlin *settings) {
+    double value = 0.0;
     if (size == 1) {
       x[0] -= 1; value += noise(x, 1, settings);
       x[0] += 2; value += noise(x, 1, settings);
@@ -78,8 +82,8 @@ static float smooth(int *x, int size, Perlin *settings) {
     return value;
   }
 
-static float int_f(int *y, float *x, int *fx, int *cx, int size, int depth, Perlin *settings) {
-  float x1, x2, f;
+static double int_f(int *y, double *x, int *fx, int *cx, int size, int depth, Perlin *settings) {
+  double x1, x2, f;
   if (size - depth == 0)
     return smooth(y, size, settings);
   y[depth] = fx[depth];
@@ -90,9 +94,9 @@ static float int_f(int *y, float *x, int *fx, int *cx, int size, int depth, Perl
   return x1 * (1 - f) + x2 * f;
 }
 
-static float interpolated(float *x, int size, Perlin *settings) {
+static double interpolated(double *x, int size, Perlin *settings) {
   int *fx,*cx, *y, i;
-  float value;
+  double value;
   
   fx = malloc(size * sizeof(int));
   cx = malloc(size * sizeof(int));
@@ -102,7 +106,7 @@ static float interpolated(float *x, int size, Perlin *settings) {
     // Error
   }
   for (i = 0; i < size; i++) {
-    fx[i] = floor(x[i]);
+    fx[i] = (int)floor(x[i]);
     cx[i] = fx[i] + 1;
   }
   value = int_f(y, x, fx, cx, size, 0, settings);
@@ -112,16 +116,16 @@ static float interpolated(float *x, int size, Perlin *settings) {
 
 static PyObject * value(PyObject *self1, PyObject *args) {
   int i, j, size = 6;
-  float x[6] = {FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX}; /* Currently max 6-dimensional values. */
-  float output = 0.0;
+  double x[10] = {FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX}; /* Currently max 10-dimensional values. */
+  double output = 0.0;
   FractalMap *self;
   
   self = (FractalMap *)self1;
   
-  if (!PyArg_ParseTuple(args, "f|fffff", &x[0], &x[1], &x[2], &x[3], &x[4], &x[5]))
+  if (!PyArg_ParseTuple(args, "d|ddddddddd", &x[0], &x[1], &x[2], &x[3], &x[4], &x[5], &x[6], &x[7], &x[8], &x[9]))
     return NULL;
   
-  for (i = 5; i >= 0; i--) if (x[i] < FLT_MAX) { size = i + 1; break; }
+  for (i = 9; i >= 0; i--) if (x[i] < FLT_MAX) { size = i + 1; break; }
   
   
   for (i = 0; i < self->octaves; i++) {
@@ -129,7 +133,7 @@ static PyObject * value(PyObject *self1, PyObject *args) {
     for (j = 0; j < size; j++) { x[j] /= 2; }
   }
   
-  return Py_BuildValue("f", output);
+  return Py_BuildValue("d", output);
 }
 
 static PyObject * __getitem__(PyObject *self, PyObject *args) {
