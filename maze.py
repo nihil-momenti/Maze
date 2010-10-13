@@ -218,7 +218,7 @@ class Maze(object):
     self.gen_tex(tex_map, self.tex_res, config['tex_map']['variability'])
     print "      ...Done"
     
-    self.start_point = Point3((self.start_index.x - self.size / 2) * self.scale, 0.2 * self.scale * self.y_scale, (self.start_index.z - self.size / 2) * self.scale)
+    self.start_point = Point3((self.start_index.x - self.size / 2) * self.scale, 0, (self.start_index.z - self.size / 2) * self.scale)
     
   def gen_maze(self, num_runners, special_chance, dead_end_chance, start_point):
     self.map = numpy.zeros((self.size,self.size),numpy.int8)

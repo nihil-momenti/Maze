@@ -81,24 +81,116 @@ class Robot(object):
     glLight(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1)
     glLight(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0005)
     glLight(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0001)
+  
+  def head(self):
+    glPushMatrix()
+    glTranslate(0,11.5,0)
+    glScale(8,8,8)
+    glutSolidCube(1)
+    glPopMatrix()
 
-
+  def arms(self):
+    glPushMatrix()
+    glTranslate(0,2.5,0)
+    self.left_arm()
+    self.right_arm()
+    glPopMatrix()
+  
+  def left_arm(self):
+    glPushMatrix()
+    glTranslate(0,0,6.5)
+    glScale(3, 10, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/10, 1/3)
+    self.left_forearm()
+    glPopMatrix()
+  
+  def left_forearm(self):
+    glPushMatrix()
+    glTranslate(0,-10,0)
+    glScale(3, 10, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/10, 1/3)
+    glPopMatrix()
+  
+  def right_arm(self):
+    glPushMatrix()
+    glTranslate(0,0,-6.5)
+    glScale(3, 10, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/10, 1/3)
+    self.right_forearm()
+    glPopMatrix()
+  
+  def right_forearm(self):
+    glPushMatrix()
+    glTranslate(0,-10,0)
+    glScale(3, 10, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/10, 1/3)
+    glPopMatrix()
+  
+  def legs(self):
+    glPushMatrix()
+    glTranslate(0,-11.5,0)
+    self.left_leg()
+    self.right_leg()
+    glPopMatrix()
+  
+  def left_leg(self):
+    glPushMatrix()
+    glTranslate(0,0,3)
+    glScale(3, 8, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/8, 1/3)
+    self.left_shin()
+    glPopMatrix()
+  
+  def left_shin(self):
+    glPushMatrix()
+    glTranslate(0,-8,0)
+    glScale(3, 8, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/8, 1/3)
+    glPopMatrix()
+  
+  def right_leg(self):
+    glPushMatrix()
+    glTranslate(0,0,-3)
+    glScale(3, 8, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/8, 1/3)
+    self.right_shin()
+    glPopMatrix()
+  
+  def right_shin(self):
+    glPushMatrix()
+    glTranslate(0,-8,0)
+    glScale(3, 8, 3)
+    glutSolidCube(1)
+    glScale(1/3, 1/8, 1/3)
+    glPopMatrix()
+  
   def base(self):
     glPushMatrix()
     glColor3f(1,1,0)
-    glTranslatef(0, 0, 0)
-    glScale(20, 28, 20)
-    glutSolidCube(1)
+    glTranslatef(0, -11.5, 0)
+    glScale(1, 3, 2)
+    glutSolidCube(5)
+    glScale(1/1, 1/3, 1/2)
+    self.head()
+    self.arms()
+    self.legs()
     glPopMatrix()
     
   
-  def display(self):
+  def display(self, show):
     glLight(GL_LIGHT0, GL_POSITION, list(self.position) + [1])
-    glPushMatrix()
-    glTranslate(*self.position)
-    glTranslate(0, -1, 0)
-    facing = self.lookat - self.position
-    angle = -atan2(facing.dz, facing.dx)
-    glRotate(degrees(angle), 0, 1, 0)
-    self.base()
-    glPopMatrix()
+    if show:
+      glPushMatrix()
+      glTranslate(*self.position)
+      facing = self.lookat - self.position
+      angle = -atan2(facing.dz, facing.dx)
+      glRotate(degrees(angle), 0, 1, 0)
+      self.base()
+      glPopMatrix()

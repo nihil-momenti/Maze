@@ -13,7 +13,7 @@ from OpenGL.GLUT import *
 
 class Player(object):
   def __init__(self, config, start_point):
-    self.position = start_point
+    self.position = start_point + Vector3(0, 0, 0)
     self.lookat = start_point + Vector3(1, 0, 0)
     self.viewup = Vector3(0, 1, 0)
     self.sensitivity = config['sensitivity']
@@ -133,4 +133,4 @@ class Player(object):
     self.robot.gl_init()
   
   def display(self):
-    self.robot.display()
+    self.robot.display(self.disconnected)
