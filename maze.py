@@ -109,8 +109,8 @@ class Cell(object):
         b = backs[xyz + 1 - 3] + (j - 1) * scales[xyz + 1 - 3]
         c = [backs[xyz], b, a] if xyz == 0 else [a, backs[xyz], b] if xyz == 1 else [b, a, backs[xyz]]
         disp[i, j] = self.disp_map[c[0], c[1], c[2]] * scales[xyz]
-    disp[(1,-2), 1:-1] = numpy.zeros((2,size-2))
-    disp[1:-1, (1,-2)] = numpy.zeros((size-2,2))
+    #disp[(1,-2), 1:-1] = numpy.zeros((2,size-2))
+    #disp[1:-1, (1,-2)] = numpy.zeros((size-2,2))
     
     a = numpy.asarray(
       [
@@ -132,54 +132,102 @@ class Cell(object):
         
         
         if direction == 'forward':
-          c = [frnts[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [frnts[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [frnts[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [frnts[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [frnts[xyz] + disp[i+1, j], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [frnts[xyz], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i][j-1]); glTexCoord3f(*t); glVertex(*c)
         else:
-          c = [backs[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [backs[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [backs[xyz] + disp[i+1, j], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [backs[xyz], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i][j-1]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [backs[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [backs[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
           
         
         if direction == 'forward':
-          c = [frnts[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [frnts[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [frnts[xyz] + disp[i, j+1], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [frnts[xyz], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i-1][j]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [frnts[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [frnts[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
         else:
-          c = [backs[xyz] + disp[i, j], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [backs[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [backs[xyz] + disp[i+1, j+1], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [backs[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
           
-          c = [backs[xyz] + disp[i, j+1], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
-          t = [ci / self.size / self.scale for ci in c]
+          c = [backs[xyz], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
+          t = [
+			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+          ]
           glNormal(*n[i-1][j]); glTexCoord3f(*t); glVertex(*c)
     
   def display(self):
@@ -214,8 +262,9 @@ class Maze(object):
     
     print "      Generating texture..."
     tex_map = FractalMap(config['tex_map']['octaves'], config['tex_map']['persistence'])
-    self.tex_res = config['tex_map']['res']
-    self.gen_tex(tex_map, self.tex_res, config['tex_map']['variability'])
+    self.horiz_res = config['tex_map']['horiz_res']
+    self.vert_res = config['tex_map']['vert_res']
+    self.gen_tex(tex_map, self.horiz_res, self.vert_res, config['tex_map']['variability'])
     print "      ...Done"
     
     self.start_point = Point3((self.start_index.x - self.size / 2) * self.scale, 0.2 * self.scale * self.y_scale, (self.start_index.z - self.size / 2) * self.scale)
@@ -256,11 +305,11 @@ class Maze(object):
           if z == 0 or self.map[x,z-1] not in (2, 3):             walls.append('back')
           self.cells.append(Cell(x - self.size/2, z - self.size/2, self.scale, self.y_scale, self.size, disp_map, res, dist, walls))
     
-  def gen_tex(self, tex_map, res, var):
-    self.texture = numpy.zeros((res,res,res,3),'single')
-    for x in range(res):
-      for y in range(res):
-        for z in range(res):
+  def gen_tex(self, tex_map, horiz_res, vert_res, var):
+    self.texture = numpy.zeros((horiz_res,vert_res,horiz_res,3),'single')
+    for x in range(horiz_res):
+      for y in range(vert_res):
+        for z in range(horiz_res):
           v = tex_map[x,y,z]
           value = [max(0., min(1., (1. + v * var) * .60)),
                    max(0., min(1., (1. + v * var) * .46)),
@@ -314,7 +363,7 @@ class Maze(object):
     print "      ...Done"
     print "      Loading texture..."
     self.textureID = glGenTextures(1); glBindTexture(GL_TEXTURE_3D, self.textureID)
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, self.tex_res, self.tex_res, self.tex_res, 0, GL_RGB, GL_FLOAT, self.texture)
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, self.horiz_res, self.vert_res, self.horiz_res, 0, GL_RGB, GL_FLOAT, self.texture)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
