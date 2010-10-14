@@ -17,6 +17,8 @@ class Robot(object):
     self.speed = config['speed']
     self.moving = set()
     self.in_motion = False
+    self.right_arm_angle = 20
+    self.right_forearm_angle = 80
   
   def move(self, direction):
     if direction in self.moving:
@@ -30,6 +32,12 @@ class Robot(object):
   
   def stop(self, direction):
     self.moving.remove(direction)
+  
+  def adjust(self, movement):
+    if   movement == 'RAISE_RIGHT':
+      self.right_arm_angle += 5
+    elif movement == 'LOWER_RIGHT':
+      self.right_arm_angle -= 5
   
   def update(self, value=0):
     if len(self.moving) > 0:
@@ -87,6 +95,18 @@ class Robot(object):
     glTranslate(0,11.5,0)
     glScale(8,8,8)
     glutSolidCube(1)
+    glScale(1/8,1/8,1/8)
+    self.eyes()
+    glMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, (0.96,0.76,0.76,1))
+    glPopMatrix()
+  
+  def eyes(self):
+    glPushMatrix()
+    glTranslate(4, 2, 2)
+    glMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, (0,0,0,1))
+    glutSolidSphere(1,10,10)
+    glTranslate(0, 0,-4)
+    glutSolidSphere(1,10,10)
     glPopMatrix()
 
   def arms(self):
@@ -116,6 +136,9 @@ class Robot(object):
   def right_arm(self):
     glPushMatrix()
     glTranslate(0,0,-6.5)
+    glTranslate(0,5,0)
+    glRotate(self.right_arm_angle, 0, 0, 1)
+    glTranslate(0,-5,0)
     glScale(3, 10, 3)
     glutSolidCube(1)
     glScale(1/3, 1/10, 1/3)
@@ -125,9 +148,21 @@ class Robot(object):
   def right_forearm(self):
     glPushMatrix()
     glTranslate(0,-10,0)
+    glTranslate(0,5,0)
+    glRotate(self.right_forearm_angle, 0, 0, 1)
+    glTranslate(0,-5,0)
     glScale(3, 10, 3)
     glutSolidCube(1)
     glScale(1/3, 1/10, 1/3)
+    self.glow_ball()
+    glPopMatrix()
+  
+  def glow_ball(self):
+    glPushMatrix()
+    glTranslate(2.5, -4, 0)
+    glMaterial(GL_FRONT, GL_EMISSION, (1, 0.89, 0.71, 1))
+    glutSolidSphere(1, 10, 10)
+    glMaterial(GL_FRONT, GL_EMISSION, (0, 0, 0, 1))
     glPopMatrix()
   
   def legs(self):
@@ -173,7 +208,6 @@ class Robot(object):
   
   def base(self):
     glPushMatrix()
-    glColor3f(1,1,0)
     glTranslatef(0, -11.5, 0)
     glScale(1, 3, 2)
     glutSolidCube(5)
@@ -192,5 +226,6 @@ class Robot(object):
       facing = self.lookat - self.position
       angle = -atan2(facing.dz, facing.dx)
       glRotate(degrees(angle), 0, 1, 0)
+      glMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, (0.96,0.76,0.76,1))
       self.base()
       glPopMatrix()

@@ -43,6 +43,9 @@ class Player(object):
     elif self.disconnected:
       self.robot.stop(direction)
   
+  def adjust(self, movement):
+    self.robot.adjust(movement)
+  
   def update(self, value=0):
     if len(self.moving) > 0:
       for direction in self.moving:
@@ -133,4 +136,4 @@ class Player(object):
     self.robot.gl_init()
   
   def display(self):
-    self.robot.display(self.disconnected)
+    self.robot.display(self.disconnected or self.third_person)

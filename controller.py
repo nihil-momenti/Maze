@@ -86,6 +86,10 @@ class Controller(object):
       self.player.move('ROBOT_BACK')
     elif key in ['l', 'L']:
       self.player.move('ROBOT_RIGHT')
+    elif key in ['t', 'T']:
+      self.player.adjust('RAISE_RIGHT')
+    elif key in ['g', 'G']:
+      self.player.adjust('LOWER_RIGHT')
    
   def keyboardUpFunc(self, key, x, y):
     if key == 'a':
@@ -112,5 +116,4 @@ class Controller(object):
           
   def run(self):
     """Start the app (just runs the GLUT main loop)"""
-    glutPostRedisplay()
     glutMainLoop()

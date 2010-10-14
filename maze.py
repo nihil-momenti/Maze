@@ -134,49 +134,49 @@ class Cell(object):
         if direction == 'forward':
           c = [frnts[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
           c = [frnts[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
           
           c = [frnts[xyz], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i][j-1]); glTexCoord3f(*t); glVertex(*c)
         else:
           c = [backs[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
           c = [backs[xyz], b1, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i][j-1]); glTexCoord3f(*t); glVertex(*c)
           
           c = [backs[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
           
@@ -184,49 +184,49 @@ class Cell(object):
         if direction == 'forward':
           c = [frnts[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
           c = [frnts[xyz], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i-1][j]); glTexCoord3f(*t); glVertex(*c)
           
           c = [frnts[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
         else:
           c = [backs[xyz], b1, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i-1][j-1]); glTexCoord3f(*t); glVertex(*c)
           
           c = [backs[xyz], b2, a2]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i][j]); glTexCoord3f(*t); glVertex(*c)
           
           c = [backs[xyz], b2, a1]; [c.insert(0, c.pop()) for k in range(xyz)]
           t = [
-			((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
-			(c[1] / self.scale + self.y_scale / 2) / self.y_scale,
-			((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
+            ((c[0] + self.scale / 2) / self.scale + self.size / 2) / self.size,
+            (c[1] / self.scale + self.y_scale / 2) / self.y_scale,
+            ((c[2] + self.scale / 2) / self.scale + self.size / 2) / self.size
           ]
           glNormal(*n[i-1][j]); glTexCoord3f(*t); glVertex(*c)
     
@@ -384,6 +384,7 @@ class Maze(object):
     print "    ...Done"
     
   def display(self):
+    glColor3f(1,1,1)
     glBindTexture(GL_TEXTURE_3D, self.textureID)
     glCallList(self.listID)
     
