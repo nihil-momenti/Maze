@@ -30,14 +30,14 @@ Perlin new_perlin() {
   for (i = 0; i < 10; i++){
     perlin.small[i] = smalls[i];
   }
-  perlin.big1 = (rand() % 32767) + 10000; // 32 767 - 42 767
-  perlin.big2 = (rand() % 32767) * (rand() % 8) + 750000; // 262 136 - 1 012 136
-  perlin.big3 = (rand() % 32767) * (rand() % 15259) + 1000000000; // 499 991 653 - 1 499 991 653
+  perlin.big1 = (rand() % 32767) + 10000; /* 32 767 - 42 767 */
+  perlin.big2 = (rand() % 32767) * (rand() % 8) + 750000; /* 262 136 - 1 012 136 */
+  perlin.big3 = (rand() % 32767) * (rand() % 15259) + 1000000000; /* 499 991 653 - 1 499 991 653 */
   return perlin;
 }
 
-// Crap randomiser, need to find something with less repetition
-// Works okay for fractal generation though
+/* Crap randomiser, need to find something with less repetition */
+/* Works okay for fractal generation though */
 static double noise(int *x, int size, Perlin *settings) {
     int i;
     int n = 0;
@@ -103,7 +103,7 @@ static double interpolated(double *x, int size, Perlin *settings) {
   y = malloc(size * sizeof(int));
   
   if (! (y && fx && cx)) {
-    // Error
+    /* Error */
   }
   for (i = 0; i < size; i++) {
     fx[i] = (int)floor(x[i]);

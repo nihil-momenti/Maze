@@ -4,7 +4,6 @@ from __future__ import division
 from maze import Maze
 from special import Special
 from tex_plane import Plane
-from projector import Projector
 
 class World(object):
   def __init__(self, config):
