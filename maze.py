@@ -371,6 +371,7 @@ class Maze(object):
     glEnable(GL_TEXTURE_3D)
     
     self.listID = glGenLists(1); glNewList(self.listID, GL_COMPILE_AND_EXECUTE)
+    glBindTexture(GL_TEXTURE_3D, self.textureID)
     glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT,   (0.2,0.2,0.2,1))
     glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE,   (0.8,0.8,0.8,1))
     glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR,  (0,0,0,1))
@@ -385,6 +386,5 @@ class Maze(object):
     
   def display(self):
     glColor3f(1,1,1)
-    glBindTexture(GL_TEXTURE_3D, self.textureID)
     glCallList(self.listID)
     

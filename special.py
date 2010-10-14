@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
-import random, math
+import random, math, numpy
 
 from model import Model
+from PIL import Image
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -17,6 +18,16 @@ class Ball:
     self.y = 0
     self.z = z
     self.bounce(1)
+    self.q = gluNewQuadric()
+    gluQuadricTexture(self.q, GL_TRUE)
+    tex = numpy.asarray(Image.open('earth_sphere.jpg'))
+    self.textureID = glGenTextures(1); glBindTexture(GL_TEXTURE_2D, self.textureID)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.shape[0], tex.shape[1], 0, GL_RGB, GL_BYTE, tex)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE)
+    glEnable(GL_TEXTURE_2D)
   
   def bounce(self, value):
     self.y += value
@@ -26,8 +37,10 @@ class Ball:
   
   def display(self):
     glPushMatrix()
+    glBindTexture(GL_TEXTURE_2D, self.textureID)
     glTranslate(self.x, self.y, self.z)
-    glutSolidSphere
+    gluSphere(self.q, 3, 10, 10)
+    glBindTexture(GL_TEXTURE_2D, 0)
     glPopMatrix()
 
 
@@ -46,11 +59,11 @@ class Special(object):
   
   @classmethod
   def init(cls):
-    cls.num = min(cls.num, 7)
-    cls.models = []
+    Special.num = max(1, min(Special.num, 7))
+    Special.models = []
     
-    cls.map = [FractalMap(8, 0.95) for i in range(Special.num)]
-    cls.fire_index = [0 for i in range(Special.num)]
+    Special.map = [FractalMap(8, 0.95) for i in range(Special.num)]
+    Special.fire_index = [0 for i in range(Special.num)]
     
     models = [
       (Model('models/lamp.obj'), lamp_pre),
@@ -63,19 +76,19 @@ class Special(object):
       glLight(GL_LIGHT1 + i, GL_LINEAR_ATTENUATION, 0.001)
       glLight(GL_LIGHT1 + i, GL_QUADRATIC_ATTENUATION, 0.0001)
       model = random.choice(models)
-      cls.models.append((model[0], model[1](i)))
-    cls.flicker(0)
+      Special.models.append((model[0], model[1](i)))
+    Special.flicker(0)
   
   @classmethod
   def flicker(cls, i):
-    glLight(GL_LIGHT1 + i, GL_QUADRATIC_ATTENUATION, max(0, 0.00005 * cls.map[i][cls.fire_index[i],] + 0.0001))
-    cls.fire_index[i] += 1#; print cls.fire_index[i]
-    glutTimerFunc(10, cls.flicker, (i + 1) % cls.num)
+    glLight(GL_LIGHT1 + i, GL_QUADRATIC_ATTENUATION, max(0, 0.00005 * Special.map[i][Special.fire_index[i],] + 0.0001))
+    cls.fire_index[i] += 1
+    glutTimerFunc(10, Special.flicker, (i + 1) % Special.num)
     glutPostRedisplay()
     
     
   def __init__(self, location, wall):
-    Special.num += 1
+    if random.random() > 0.3: Special.num += 1
     self.x = location[0]
     self.z = location[1]
     self.wall_x = wall[0]
