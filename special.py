@@ -19,28 +19,17 @@ class Ball:
     self.z = z
     self.bounce(1)
     self.q = gluNewQuadric()
-    gluQuadricTexture(self.q, GL_TRUE)
-    tex = numpy.asarray(Image.open('earth_sphere.jpg'))
-    self.textureID = glGenTextures(1); glBindTexture(GL_TEXTURE_2D, self.textureID)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.shape[0], tex.shape[1], 0, GL_RGB, GL_BYTE, tex)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE)
-    glEnable(GL_TEXTURE_2D)
   
   def bounce(self, value):
     self.y += value
-    if self.y not in range(-34, 35):
+    if self.y not in range(-28, 28):
       value = -value
     glutTimerFunc(10, self.bounce, value)
   
   def display(self):
     glPushMatrix()
-    glBindTexture(GL_TEXTURE_2D, self.textureID)
     glTranslate(self.x, self.y, self.z)
-    gluSphere(self.q, 3, 10, 10)
-    glBindTexture(GL_TEXTURE_2D, 0)
+    gluSphere(self.q, 10, 20, 20)
     glPopMatrix()
 
 
@@ -81,7 +70,7 @@ class Special(object):
   
   @classmethod
   def flicker(cls, i):
-    glLight(GL_LIGHT1 + i, GL_QUADRATIC_ATTENUATION, max(0, 0.00005 * Special.map[i][Special.fire_index[i],] + 0.0001))
+    glLight(GL_LIGHT1 + i, GL_QUADRATIC_ATTENUATION, max(0.00005, 0.00005 * Special.map[i][Special.fire_index[i],] + 0.0001))
     cls.fire_index[i] += 1
     glutTimerFunc(10, Special.flicker, (i + 1) % Special.num)
     glutPostRedisplay()

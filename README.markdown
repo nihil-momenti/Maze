@@ -1,5 +1,5 @@
-Focuses:
-========
+Focuses
+=======
 `model.py`, `material.py`
 -------------------------
 The first code written for this project was for generating models, the Wavefront OBJ format was chosen after a quick glance at the wikipedia page for it and the code in the above two files was developed to load and generate models from these files.  This allowed be to create models in Blender and export them, I decided my model making skills weren't up to the task though so the torch and lamp post were found from a repository of free models[4] and modified slightly to suit.
@@ -11,6 +11,22 @@ The player code was split over two main files, `player.py` determines the positi
 `perlin.py`, `fractal_map.py`, `fractal_map.c`
 ----------------------------------------------
 This is where I probably spent the most time, even though none of it directly contributes to the marking.  Initially I utilised the Diamond-Square algorithm for generating the fractal map, but I wasn't satisfied with that method and decided to implement Perlin noise instead following the outline at [3].  This had a large performance detriment so I had to re-implement it as a C extension.  This was used for generating a 3d texture for the maze walls, roof and floor; 2d bump mapping for the walls, roof and floor and for the flickering of the light sources.
+
+If there is an error to do with loading the fractal_map module first try running `python setup.py install`, if that fails next try running `python setup.py build` and copying the .so\.pyd file from inside the build\lib* folder into the main folder.  Lastly try deleting all .so\.pyd files from the main folder, this will fall back to the Python implementation so to speed up the world generation replace lines 10-22 in world.config with the following:
+        
+        "disp_map": {
+          "octaves": 3,
+          "persistence": 0.5,
+          "res": 4,
+          "dist": 20
+        },
+        "tex_map": {
+          "octaves": 8,
+          "persistence": 0.9,
+          "horiz_res": 16,
+          "vert_res": 4,
+          "variability": 0.5
+        }
 
 `controller.py`, `world.py`, `view.py`
 --------------------------------------
@@ -28,6 +44,8 @@ The maze is procedurally generated using a method similar to the one detailed at
 ------------
 This encompasses the random object found in the maze; the torch, lamp post and bouncing ball.  The torch and lamp post are simply Blender models loaded and displayed at their position with a flickering light source.  The bouncing ball is its own class that simply creates a sphere that moves up and down on the spot.
 
+
+Note: I have had a lot of problems with crashing on my home PC, this has never occured on the lab PC's but I haven't done much work at Uni.  There seems to be no rhyme or reason to the crashes, just sometimes it decides to crash for 15 mins then work fine once I've left it sitting alone.
 
 Controls
 ========
@@ -55,4 +73,3 @@ TODO
 ====
 + Fix torch's rotation so it's actually against a wall.
 + Animate fire in torch
-+ Add third animated textured special object

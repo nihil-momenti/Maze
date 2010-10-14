@@ -39,7 +39,8 @@ class Player(object):
     
   def stop(self, direction):
     if direction in ['LEFT', 'RIGHT', 'FORWARD', 'BACK'] or self.disconnected and direction in ['UP', 'DOWN']:
-      self.moving.remove(direction)
+      if direction in self.moving:
+        self.moving.remove(direction)
     elif self.disconnected:
       self.robot.stop(direction)
   

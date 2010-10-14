@@ -31,7 +31,8 @@ class Robot(object):
     
   
   def stop(self, direction):
-    self.moving.remove(direction)
+    if direction in self.moving:
+      self.moving.remove(direction)
   
   def adjust(self, movement):
     if   movement == 'RAISE_RIGHT':

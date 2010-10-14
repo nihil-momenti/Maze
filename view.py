@@ -39,7 +39,7 @@ class View(object):
         else:
           glutInitWindowSize(config['window_width'], config['window_height'])
           glutInitWindowPosition(0, 0)
-          glutCreateWindow("Robot")
+          glutCreateWindow("Assignment 2, Wim Looman")
         glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF)
         glutIgnoreKeyRepeat(1)
         print "  ...Done"
