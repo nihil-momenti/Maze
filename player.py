@@ -114,8 +114,15 @@ class Player(object):
       self.robot.turn(self.sensitivity * rotation[0])
     glutPostRedisplay()
   
-  def attack(self):
-    return None
+  def action(self, value):
+    if value >= -15:
+      if self.disconnected:
+        self.robot.up(value/10)
+      else:
+        self.up(value/10)
+
+    glutPostRedisplay()
+    glutTimerFunc(10, self.action, value - 1)
   
   def switch_third_person(self):
     if self.third_person:

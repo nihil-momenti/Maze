@@ -1,3 +1,6 @@
+To start simply run `python main.py`
+The generation of the texture and walls can take up to a minute, be patient.
+
 Focuses
 =======
 `model.py`, `material.py`
@@ -52,6 +55,8 @@ Controls
   Hold the left mouse button down on the window and use the mouse to look around.
   
   WASD are used for movement.
+
+  Right click to perform the action.
 
   E switches between first and third person view.
   

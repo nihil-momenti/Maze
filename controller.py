@@ -38,7 +38,7 @@ class Controller(object):
         glutWarpPointer(*self.mouseInitialPos)
         glutSetCursor(GLUT_CURSOR_INHERIT)
     elif button == GLUT_RIGHT_BUTTON:
-      self.player.attack()
+      self.player.action(15)
 
 
   def mouseMotionFunc(self, x, y):
